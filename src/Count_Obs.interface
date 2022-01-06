@@ -1,0 +1,7 @@
+INTERFACE
+  SUBROUTINE Count_Obs (Obs, count)
+  USE DefConsTypes, ONLY : Obs_type
+  TYPE(Obs_type), POINTER, INTENT(IN) :: Obs
+  INTEGER,                 INTENT(OUT):: count
+  END SUBROUTINE Count_Obs
+END INTERFACE
