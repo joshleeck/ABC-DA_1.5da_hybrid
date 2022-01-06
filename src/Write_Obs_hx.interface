@@ -1,0 +1,12 @@
+INTERFACE
+  SUBROUTINE Write_Obs_hx (Filename, Obs, EnsNum, NEnsMems, count, hx, R)
+  USE DefConsTypes, ONLY : ZREAL8, Obs_type
+  CHARACTER(LEN=200),      INTENT(IN)    :: Filename
+  TYPE(Obs_type), POINTER, INTENT(IN)    :: Obs
+  INTEGER,                 INTENT(IN)    :: EnsNum
+  INTEGER,                 INTENT(IN)    :: NEnsMems
+  INTEGER,                 INTENT(IN)    :: count
+  REAL(ZREAL8),            INTENT(INOUT) :: hx(1:count,1:NEnsMems)
+  REAL(ZREAL8),            INTENT(INOUT) :: R(1:count,1:count)
+  END SUBROUTINE Write_Obs_hx
+END INTERFACE
