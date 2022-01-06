@@ -1,0 +1,22 @@
+! Define namelist
+! ---------------
+&UserOptions
+
+! Make ensemble of perturbed analyses
+! ------------------------------
+  ABC_init_ctrl_file       = 'ABC_anal_control.nc' 
+  ABC_anal_ctrl_file       = 'Anal.nc'
+  ABC_bg_ctrl_file         = 'ABC_bg_control.nc'
+  datadirABC_init          = '/scratch/leeck/ABC-DA_1.5da_leeck/test/da_cycle_0002/Ens'
+  datadirABC_bg            = '/scratch/leeck/ABC-DA_1.5da_leeck/test/da_cycle_0002/Ens'
+  datadirABC_anal          = '/scratch/leeck/ABC-DA_1.5da_leeck/test/da_cycle_0003/'
+  datadirABCEns_init       = '/scratch/leeck/ABC-DA_1.5da_leeck/test/da_cycle_0002/Ens'
+  datadirABCEns_bg         = '/scratch/leeck/ABC-DA_1.5da_leeck/test/da_cycle_0002/Ens'
+  datadirABCEns_anal       = './EBV'
+  NEnsMems                 = 30
+  nlongs                   = 364
+  nlevs                    = 60
+  Breed_opt                = 2
+  epsilon_diagnostic       = 'epsilon_diag.dat'
+  epsilon_file             = './EBV/epsilon_diag.dat'
+/

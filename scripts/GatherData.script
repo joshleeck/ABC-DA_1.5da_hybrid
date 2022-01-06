@@ -1,0 +1,110 @@
+RESOLUTIONS="HiRes StdRes"
+PARAMETERS="AtmosParams"
+TRUTHS="WithTruth_011  WithTruth_102  WithTruth_250"
+TRUTHS0="Truth_011 Truth_102 Truth_250"
+EXPERIMENTS="Exp-GB+HB-AB Exp+GB+HB-AB Exp-GB-HB-AB Exp+GB-HB-AB"
+OBSNETWORKS="Assim_Obs_vrhob"
+N_CYCLES=30
+for CYCLE in $(seq 1 $N_CYCLES); do
+  CYCLE_FORM=`printf "%04u" $CYCLE`
+  CYCLES="$CYCLES da_cycle_$CYCLE_FORM"
+done
+
+for RES in $RESOLUTIONS; do
+  echo "Resolution" $RES
+
+  # Assimilation runs
+  # -----------------
+  echo "  Assimilation runs"
+  TARITEMS="$TARITEMS $RES/Assim/ObsConfigs"
+
+  for PARAM in $PARAMETERS; do
+    echo "    Parameter set" $PARAM
+    for TRUTH in $TRUTHS; do
+      echo "      Truth state" $TRUTH
+      for EXP in $EXPERIMENTS; do
+        echo "        Experiment" $EXP
+        for OBSNETWORK in $OBSNETWORKS; do
+          echo "          Observation network" $OBSNETWORK
+          TARITEMS="$TARITEMS $RES/Assim/$PARAM/$TRUTH/$EXP/$OBSNETWORK/DAcycle001.sh"
+          TARITEMS="$TARITEMS $RES/Assim/$PARAM/$TRUTH/$EXP/$OBSNETWORK/*.dat"
+          TARITEMS="$TARITEMS $RES/Assim/$PARAM/$TRUTH/$EXP/$OBSNETWORK/*.html"
+          TARITEMS="$TARITEMS $RES/Assim/$PARAM/$TRUTH/$EXP/$OBSNETWORK/*.jobscript"
+          TARITEMS="$TARITEMS $RES/Assim/$PARAM/$TRUTH/$EXP/$OBSNETWORK/*.txt"
+          TARITEMS="$TARITEMS $RES/Assim/$PARAM/$TRUTH/$EXP/$OBSNETWORK/SuiteOut"
+          TARITEMS="$TARITEMS $RES/Assim/$PARAM/$TRUTH/$EXP/$OBSNETWORK/Plots"
+          for CYCLE in $CYCLES; do
+            echo "            Cycle" $CYCLE
+            TARITEMS="$TARITEMS $RES/Assim/$PARAM/$TRUTH/$EXP/$OBSNETWORK/$CYCLE/*.dat"
+            TARITEMS="$TARITEMS $RES/Assim/$PARAM/$TRUTH/$EXP/$OBSNETWORK/$CYCLE/*.html"
+            TARITEMS="$TARITEMS $RES/Assim/$PARAM/$TRUTH/$EXP/$OBSNETWORK/$CYCLE/*.nl"
+            TARITEMS="$TARITEMS $RES/Assim/$PARAM/$TRUTH/$EXP/$OBSNETWORK/$CYCLE/std*"
+            TARITEMS="$TARITEMS $RES/Assim/$PARAM/$TRUTH/$EXP/$OBSNETWORK/$CYCLE/Plots"
+          done
+        done
+      done
+    done
+  done
+
+  # Ensemble and Calibration
+  # ------------------------
+  echo "  Ensemble and Calibration"
+  for PARAM in $PARAMETERS; do
+    echo "    Parameter set" $PARAM
+    for EXP in $EXPERIMENTS; do
+      echo "        Experiment" $EXP
+      TARITEMS="$TARITEMS $RES/Ens+Calib/$PARAM/$EXP/CVT.nc"
+      TARITEMS="$TARITEMS $RES/Ens+Calib/$PARAM/$EXP/*.html"
+      TARITEMS="$TARITEMS $RES/Ens+Calib/$PARAM/$EXP/Plots"
+      if [ $EXP == Exp+GB+HB-AB ]; then
+        TARITEMS="$TARITEMS $RES/Ens+Calib/$PARAM/$EXP/Stage1"
+        TARITEMS="$TARITEMS $RES/Ens+Calib/$PARAM/$EXP/Stage5"
+        TARITEMS="$TARITEMS $RES/Ens+Calib/$PARAM/$EXP/Stage4/Run.*"
+        TARITEMS="$TARITEMS $RES/Ens+Calib/$PARAM/$EXP/Stage4/*.txt"
+        TARITEMS="$TARITEMS $RES/Ens+Calib/$PARAM/$EXP/Stage4/*.nl"
+      else
+        TARITEMS="$TARITEMS $RES/Ens+Calib/$PARAM/$EXP/Stage1/Run.*"
+        TARITEMS="$TARITEMS $RES/Ens+Calib/$PARAM/$EXP/Stage1/*.txt"
+        TARITEMS="$TARITEMS $RES/Ens+Calib/$PARAM/$EXP/Stage1/*.nl"
+
+        TARITEMS="$TARITEMS $RES/Ens+Calib/$PARAM/$EXP/Stage2/Run.*"
+        TARITEMS="$TARITEMS $RES/Ens+Calib/$PARAM/$EXP/Stage2/*.txt"
+        TARITEMS="$TARITEMS $RES/Ens+Calib/$PARAM/$EXP/Stage2/*.nl"
+
+        TARITEMS="$TARITEMS $RES/Ens+Calib/$PARAM/$EXP/Stage4/Run.*"
+        TARITEMS="$TARITEMS $RES/Ens+Calib/$PARAM/$EXP/Stage4/*.txt"
+        TARITEMS="$TARITEMS $RES/Ens+Calib/$PARAM/$EXP/Stage4/*.nl"
+        TARITEMS="$TARITEMS $RES/Ens+Calib/$PARAM/$EXP/Stage5"
+      fi
+    done
+  done
+
+  # Special Diags
+  # -------------
+  echo "  Special Diags"
+  TARITEMS="$TARITEMS $RES/SpecialDiags"
+
+  # TestConvScaleDens
+  # -----------------
+  echo "  TestConvScaleDens"
+  TARITEMS="$TARITEMS $RES/TestConvScaleDens"
+
+  # Truths
+  # ------
+  echo "  Truths"
+  for PARAM in $PARAMETERS; do
+    echo "    Parameter set" $PARAM
+    for TRUTH in $TRUTHS0; do
+      echo "      Truth state" $TRUTH
+      TARITEMS="$TARITEMS $RES/Truths/$PARAM/$TRUTH/PrepareABCInitState"
+      TARITEMS="$TARITEMS $RES/Truths/$PARAM/$TRUTH/RunNLModel"
+    done
+  done
+
+done
+echo $TARITEMS
+
+tar cvf DataDump.tar -z $TARITEMS
+
+echo "Script finished"
+

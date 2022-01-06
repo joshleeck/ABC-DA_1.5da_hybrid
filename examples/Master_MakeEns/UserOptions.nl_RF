@@ -1,0 +1,17 @@
+! Define namelist
+! ---------------
+&UserOptions
+
+! Make ensemble of perturbed analyses
+! ------------------------------ 
+  ABC_anal_ctrl_file       = 'ABC_InitialConds_SINGV.nc'
+  datadirABC_anal          = '../Master_PrepareABC_InitState'
+  datadirABCEns_anal       = './RF'
+  NEnsMems                 = 500
+  nlongs                   = 364
+  nlevs                    = 60
+  Breed_opt                = 3
+  RF_tune                  = 1.0
+  RF_file                  = '../Master_RunNLModel/ABC_ModelRun_SINGV_for_RF.nc'
+  uncorr_thresh            = 100
+/
