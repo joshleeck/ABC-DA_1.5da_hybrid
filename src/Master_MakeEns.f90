@@ -482,7 +482,7 @@ ELSE IF (Ens_opt == 4) THEN
 
   YbYbT = MATMUL(Yb_pert,Yb_pert_T)
   denom = FLOAT(NEnsMems-1)
-  Gamma = YbYbT/denom + R
+  Gamma = denom*YbYbT + R
 
 
   ! Compute ensemble mean and prepare for subtraction from each ensemble background
