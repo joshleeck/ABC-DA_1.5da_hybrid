@@ -26,7 +26,7 @@ USE DefConsTypes, ONLY :         &
     Nlats,                       &
     Cov_WeightE,                 &
     Cov_WeightC,                 &
-    InterVarLoc,                 &
+    VarLoc,                      &
     hScale_alpha,                &
     vScale_alpha,                &
     datadirEM,                   &
@@ -201,10 +201,16 @@ IF (ImplCov_npoints > 0) THEN
 
         CALL U_trans_alpha_adj (LS, CV_alpha_data(n), EM_x_copy(n), CVT, dims, L_alpha)
 
-        IF (.NOT. InterVarLoc) THEN
+        IF (VarLoc == 2) THEN
           ! Same alpha fields applied on each variable
           ! Extracting the column of the implied covariance associated with u at a point
           CV_alpha_data(n) % v (:,:) = CV_alpha_data(n) % u (:,:)
+          CV_alpha_data(n) % w (:,:) = CV_alpha_data(n) % u (:,:)
+          CV_alpha_data(n) % r (:,:) = CV_alpha_data(n) % u (:,:)
+          CV_alpha_data(n) % b (:,:) = CV_alpha_data(n) % u (:,:)
+        ELSE IF (VarLoc == 4) THEN
+          ! Same alpha fields applied on each variable (only v,r_prime excluded)
+          ! Extracting the column of the implied covariance associated with u at a point
           CV_alpha_data(n) % w (:,:) = CV_alpha_data(n) % u (:,:)
           CV_alpha_data(n) % r (:,:) = CV_alpha_data(n) % u (:,:)
           CV_alpha_data(n) % b (:,:) = CV_alpha_data(n) % u (:,:)
@@ -245,7 +251,7 @@ IF (ImplCov_npoints > 0) THEN
       CALL U_trans (LS, CV_data, Model_data2, CVT, dims)
     END IF
 
-    ! PRINT *, SQRT(Model_data2 % u(longindex(point), levindex(point)))
+    PRINT *, SQRT(Model_data2 % u(longindex(point), levindex(point)))
 
     ! Output the result
     WRITE (ImplCov_filename, '(A,A,I0.3,A)') TRIM(datadirImpliedCov), '/Point_', point, '_deltau.nc'
@@ -270,13 +276,17 @@ IF (ImplCov_npoints > 0) THEN
 
         CALL U_trans_alpha_adj (LS, CV_alpha_data(n), EM_x_copy(n), CVT, dims, L_alpha)
 
-        IF (.NOT. InterVarLoc) THEN
+        IF (VarLoc == 2) THEN
           ! Same alpha fields applied on each variable
           ! Extracting the column of the implied covariance associated with v at a point
           CV_alpha_data(n) % u (:,:) = CV_alpha_data(n) % v (:,:)
           CV_alpha_data(n) % w (:,:) = CV_alpha_data(n) % v (:,:)
           CV_alpha_data(n) % r (:,:) = CV_alpha_data(n) % v (:,:)
           CV_alpha_data(n) % b (:,:) = CV_alpha_data(n) % v (:,:)
+        !ELSE IF (VarLoc == 4) THEN
+          ! Same alpha fields applied on each variable (only v,r_prime excluded)
+          ! Extracting the column of the implied covariance associated with v at a point
+          
         END IF
 
         ! Apply weighting
@@ -314,7 +324,7 @@ IF (ImplCov_npoints > 0) THEN
       CALL U_trans (LS, CV_data, Model_data2, CVT, dims)
     END IF
 
-    ! PRINT *, SQRT(Model_data2 % v(longindex(point), levindex(point)))
+    PRINT *, SQRT(Model_data2 % v(longindex(point), levindex(point)))
 
     ! Output the result
     WRITE (ImplCov_filename, '(A,A,I0.3,A)') TRIM(datadirImpliedCov), '/Point_', point, '_deltav.nc'
@@ -339,11 +349,17 @@ IF (ImplCov_npoints > 0) THEN
 
         CALL U_trans_alpha_adj (LS, CV_alpha_data(n), EM_x_copy(n), CVT, dims, L_alpha)
 
-        IF (.NOT. InterVarLoc) THEN
+        IF (VarLoc == 2) THEN
           ! Same alpha fields applied on each variable
           ! Extracting the column of the implied covariance associated with w at a point
           CV_alpha_data(n) % u (:,:) = CV_alpha_data(n) % w (:,:)
           CV_alpha_data(n) % v (:,:) = CV_alpha_data(n) % w (:,:)
+          CV_alpha_data(n) % r (:,:) = CV_alpha_data(n) % w (:,:)
+          CV_alpha_data(n) % b (:,:) = CV_alpha_data(n) % w (:,:)
+        ELSE IF (VarLoc == 4) THEN
+          ! Same alpha fields applied on each variable (only v,r_prime excluded)
+          ! Extracting the column of the implied covariance associated with w at a point
+          CV_alpha_data(n) % u (:,:) = CV_alpha_data(n) % w (:,:)
           CV_alpha_data(n) % r (:,:) = CV_alpha_data(n) % w (:,:)
           CV_alpha_data(n) % b (:,:) = CV_alpha_data(n) % w (:,:)
         END IF
@@ -382,7 +398,7 @@ IF (ImplCov_npoints > 0) THEN
       CALL U_trans (LS, CV_data, Model_data2, CVT, dims)
     END IF
 
-    ! PRINT *, SQRT(Model_data2 % w(longindex(point), levindex(point)))
+    PRINT *, SQRT(Model_data2 % w(longindex(point), levindex(point)))
 
     ! Output the result
     WRITE (ImplCov_filename, '(A,A,I0.3,A)') TRIM(datadirImpliedCov), '/Point_', point, '_deltaw.nc'
@@ -406,11 +422,17 @@ IF (ImplCov_npoints > 0) THEN
         CALL Mul_model_vars (EM_x_copy(n), Model_data1, .TRUE.)
         CALL U_trans_alpha_adj (LS, CV_alpha_data(n), EM_x_copy(n), CVT, dims, L_alpha)
 
-        IF (.NOT. InterVarLoc) THEN
+        IF (VarLoc == 2) THEN
           ! Same alpha fields applied on each variable
           ! Extracting the column of the implied covariance associated with r at a point
           CV_alpha_data(n) % u (:,:) = CV_alpha_data(n) % r (:,:)
           CV_alpha_data(n) % v (:,:) = CV_alpha_data(n) % r (:,:)
+          CV_alpha_data(n) % w (:,:) = CV_alpha_data(n) % r (:,:)
+          CV_alpha_data(n) % b (:,:) = CV_alpha_data(n) % r (:,:)
+        ELSE IF (VarLoc == 4) THEN
+          ! Same alpha fields applied on each variable (only v,r_prime excluded)
+          ! Extracting the column of the implied covariance associated with r at a point
+          CV_alpha_data(n) % u (:,:) = CV_alpha_data(n) % r (:,:)
           CV_alpha_data(n) % w (:,:) = CV_alpha_data(n) % r (:,:)
           CV_alpha_data(n) % b (:,:) = CV_alpha_data(n) % r (:,:)
         END IF
@@ -449,7 +471,7 @@ IF (ImplCov_npoints > 0) THEN
       CALL U_trans (LS, CV_data, Model_data2, CVT, dims)
     END IF
 
-    ! PRINT *, SQRT(Model_data2 % r(longindex(point), levindex(point)))
+    PRINT *, SQRT(Model_data2 % r(longindex(point), levindex(point)))
 
     ! Output the result
     WRITE (ImplCov_filename, '(A,A,I0.3,A)') TRIM(datadirImpliedCov), '/Point_', point, '_deltar.nc'
@@ -473,11 +495,17 @@ IF (ImplCov_npoints > 0) THEN
         CALL Mul_model_vars (EM_x_copy(n), Model_data1, .TRUE.)
         CALL U_trans_alpha_adj (LS, CV_alpha_data(n), EM_x_copy(n), CVT, dims, L_alpha)
 
-        IF (.NOT. InterVarLoc) THEN
+        IF (VarLoc == 2) THEN
           ! Same alpha fields applied on each variable
           ! Extracting the column of the implied covariance associated with u at a point
           CV_alpha_data(n) % u (:,:) = CV_alpha_data(n) % b (:,:)
           CV_alpha_data(n) % v (:,:) = CV_alpha_data(n) % b (:,:)
+          CV_alpha_data(n) % w (:,:) = CV_alpha_data(n) % b (:,:)
+          CV_alpha_data(n) % r (:,:) = CV_alpha_data(n) % b (:,:)
+        ELSE IF (VarLoc == 4) THEN
+          ! Same alpha fields applied on each variable (only v,r_prime excluded)
+          ! Extracting the column of the implied covariance associated with b at a point
+          CV_alpha_data(n) % u (:,:) = CV_alpha_data(n) % b (:,:)
           CV_alpha_data(n) % w (:,:) = CV_alpha_data(n) % b (:,:)
           CV_alpha_data(n) % r (:,:) = CV_alpha_data(n) % b (:,:)
         END IF
@@ -516,7 +544,7 @@ IF (ImplCov_npoints > 0) THEN
       CALL U_trans (LS, CV_data, Model_data2, CVT, dims)
     END IF
 
-    ! PRINT *, SQRT(Model_data2 % b(longindex(point), levindex(point)))
+    PRINT *, SQRT(Model_data2 % b(longindex(point), levindex(point)))
 
     ! Output the result
     WRITE (ImplCov_filename, '(A,A,I0.3,A)') TRIM(datadirImpliedCov), '/Point_', point, '_deltab.nc'

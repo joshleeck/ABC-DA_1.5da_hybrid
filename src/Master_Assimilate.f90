@@ -24,7 +24,7 @@ USE DefConsTypes, ONLY :         &
     NEnsMems,                    &
     Cov_WeightE,                 &
     Cov_WeightC,                 &
-    InterVarLoc,                 &
+    VarLoc,                      &
     hScale_alpha,                &
     vScale_alpha,                &
     datadirEM,                   &
@@ -88,8 +88,8 @@ REAL(ZREAL8)                :: beta_i, alpha_i_i, beta_c, beta_e, denom
 REAL(ZREAL8)                :: m1 = -1.0, N_p = 5.0
 
 TYPE(ABC_type)              :: dxb0, dxe0
-TYPE(ABC_type), ALLOCATABLE :: chi0_i_alpha(:), r_i_alpha(:), p_i_alpha(:), pert_alpha(:)
-TYPE(ABC_type), ALLOCATABLE :: chi0_ip1_alpha(:), r_ip1_alpha(:), p_ip1_alpha(:)
+TYPE(ABC_type), ALLOCATABLE :: chi0_i_alpha(:), r_i_alpha(:), p_i_alpha(:), pert_alpha(:), r_i_alpha_copy(:)
+TYPE(ABC_type), ALLOCATABLE :: chi0_ip1_alpha(:), r_ip1_alpha(:), p_ip1_alpha(:), r_ip1_alpha_copy(:)
 TYPE(ABC_type), ALLOCATABLE :: EM_x(:), tmp_Uv(:)
 
 
@@ -225,6 +225,10 @@ ALLOCATE (pert_alpha(1:Nacv))
 ALLOCATE (chi0_ip1_alpha(1:Nacv))
 ALLOCATE (p_i_alpha(1:Nacv))
 ALLOCATE (p_ip1_alpha(1:Nacv))
+IF (VarLoc .NE. 1 .AND. VarLoc .NE. 2) THEN
+  ALLOCATE (r_i_alpha_copy(1:Nacv))
+  ALLOCATE (r_ip1_alpha_copy(1:Nacv))
+END IF
 ! Initialise fields, but not used if EnVar is not enabled
 DO n = 1, Nacv
   CALL Initialise_model_vars (r_i_alpha(n), .FALSE.)
@@ -340,13 +344,35 @@ outerloop: DO k = 1, N_outerloops + 1
     IF (Use_EOTD) THEN
       DO n = 1, Nacv
         CALL Mul_model_cons (r_i_alpha(n), m1, .TRUE.)
-        magnitude2_r_i_alpha = InnerProdModelSpace(r_i_alpha(n), r_i_alpha(n))
+
         ! Without inter-variable localisation, we treat use the same alpha field for each model variable
-        ! Need to account for 5 repeated inner product computations
-        IF (.NOT. InterVarLoc) THEN
-          magnitude2_r_i = magnitude2_r_i + magnitude2_r_i_alpha/5.
-        ELSE
+        ! or certain variables, so need to account for any repeated inner product computations
+        IF (VarLoc == 1) THEN ! Full inter-variable localisation
+          magnitude2_r_i_alpha = InnerProdModelSpace(r_i_alpha(n), r_i_alpha(n))
           magnitude2_r_i = magnitude2_r_i + magnitude2_r_i_alpha
+        
+        ELSE IF (VarLoc == 2) THEN ! Retain all inter-variable covariances
+          magnitude2_r_i_alpha = InnerProdModelSpace(r_i_alpha(n), r_i_alpha(n))
+          magnitude2_r_i = magnitude2_r_i + magnitude2_r_i_alpha/N_p
+        
+        ELSE IF (VarLoc == 4) THEN ! Retain all inter-variable covariances except with v
+          ! Add components associated with all other variables
+          CALL Initialise_model_vars (r_i_alpha_copy(n), .FALSE.)
+          CALL Add_model_vars (r_i_alpha_copy(n), r_i_alpha(n), .TRUE.)
+          r_i_alpha_copy(n) % v(0:nlongs+1,0:nlevs+1) = 0 
+          magnitude2_r_i_alpha = InnerProdModelSpace(r_i_alpha_copy(n), r_i_alpha_copy(n))
+          magnitude2_r_i = magnitude2_r_i + magnitude2_r_i_alpha/4.0
+
+          ! Add components associated with v
+          CALL Initialise_model_vars (r_i_alpha_copy(n), .FALSE.)
+          CALL Add_model_vars (r_i_alpha_copy(n), r_i_alpha(n), .TRUE.)
+          r_i_alpha_copy(n) % u(0:nlongs+1,0:nlevs+1) = 0
+          r_i_alpha_copy(n) % w(0:nlongs+1,0:nlevs+1) = 0
+          r_i_alpha_copy(n) % r(0:nlongs+1,0:nlevs+1) = 0
+          r_i_alpha_copy(n) % b(0:nlongs+1,0:nlevs+1) = 0
+          magnitude2_r_i_alpha = InnerProdModelSpace(r_i_alpha_copy(n), r_i_alpha_copy(n))
+          magnitude2_r_i = magnitude2_r_i + magnitude2_r_i_alpha
+ 
         END IF
       END DO
     END IF
@@ -444,14 +470,35 @@ outerloop: DO k = 1, N_outerloops + 1
       IF (Use_EOTD) THEN
         DO n = 1, Nacv
           CALL Mul_model_cons (r_ip1_alpha(n), m1, .TRUE.)
-          magnitude2_r_ip1_alpha = InnerProdModelSpace(r_ip1_alpha(n), r_ip1_alpha(n))
 
           ! Without inter-variable localisation, we treat use the same alpha field for each model variable
-          ! Need to account for 5 repeated inner product computations
-          IF (.NOT. InterVarLoc) THEN
-            magnitude2_r_ip1 = magnitude2_r_ip1 + magnitude2_r_ip1_alpha/5.
-          ELSE
+          ! or certain variables, so need to account for any repeated inner product computations
+          IF (VarLoc == 1) THEN ! Full inter-variable localisation
+            magnitude2_r_ip1_alpha = InnerProdModelSpace(r_ip1_alpha(n), r_ip1_alpha(n))
             magnitude2_r_ip1 = magnitude2_r_ip1 + magnitude2_r_ip1_alpha
+          
+          ELSE IF (VarLoc == 2) THEN ! Retain all inter-variable covariances
+            magnitude2_r_ip1_alpha = InnerProdModelSpace(r_ip1_alpha(n), r_ip1_alpha(n))
+            magnitude2_r_ip1 = magnitude2_r_ip1 + magnitude2_r_ip1_alpha/N_p
+         
+          ELSE IF (VarLoc == 4) THEN ! Retain all inter-variable covariances except with v
+            ! Add components associated with all other variables
+            CALL Initialise_model_vars (r_ip1_alpha_copy(n), .FALSE.)
+            CALL Add_model_vars (r_ip1_alpha_copy(n), r_ip1_alpha(n), .TRUE.)
+            r_ip1_alpha_copy(n) % v(0:nlongs+1,0:nlevs+1) = 0
+            magnitude2_r_ip1_alpha = InnerProdModelSpace(r_ip1_alpha_copy(n), r_ip1_alpha_copy(n))
+            magnitude2_r_ip1 = magnitude2_r_ip1 + magnitude2_r_ip1_alpha/4.0
+
+            ! Add components associated with v
+            CALL Initialise_model_vars (r_ip1_alpha_copy(n), .FALSE.)
+            CALL Add_model_vars (r_ip1_alpha_copy(n), r_ip1_alpha(n), .TRUE.)
+            r_ip1_alpha_copy(n) % u(0:nlongs+1,0:nlevs+1) = 0
+            r_ip1_alpha_copy(n) % w(0:nlongs+1,0:nlevs+1) = 0
+            r_ip1_alpha_copy(n) % r(0:nlongs+1,0:nlevs+1) = 0
+            r_ip1_alpha_copy(n) % b(0:nlongs+1,0:nlevs+1) = 0
+            magnitude2_r_ip1_alpha = InnerProdModelSpace(r_ip1_alpha_copy(n), r_ip1_alpha_copy(n))
+            magnitude2_r_ip1 = magnitude2_r_ip1 + magnitude2_r_ip1_alpha
+
           END IF
         END DO
       END IF
@@ -513,12 +560,10 @@ outerloop: DO k = 1, N_outerloops + 1
       DO n = 1, Nacv
         CALL Initialise_model_vars (tmp_Uv(n), .FALSE.)
         ! Localisation of alpha control variables
+        ! Note that division factor of N_p (or otherwise) is not required because 
+        ! we do not repeat this computation N_p times (and sum)
+        ! unlike in true matrix form of U_alpha which has N_g x N_p cols
         CALL U_trans_alpha (LSfc(0), chi0_ip1_alpha(n), tmp_Uv(n), CVT, dims, L_alpha)
-        
-        ! Need to divide by number of multivariate components
-        IF (.NOT. InterVarLoc) THEN
-          CALL Div_model_cons(tmp_Uv(n), N_p, .TRUE.)
-        END IF
         
         ! Schur product multiplication between error modes and alpha control variables in model space
         CALL Mul_model_vars(tmp_Uv(n), EM_x(n), .TRUE.)
@@ -571,6 +616,10 @@ DEALLOCATE (pert_alpha)
 DEALLOCATE (chi0_ip1_alpha)
 DEALLOCATE (p_i_alpha)
 DEALLOCATE (p_ip1_alpha)
+IF (VarLoc .NE. 1 .AND. VarLoc .NE. 2) THEN
+  DEALLOCATE (r_i_alpha_copy)
+  DEALLOCATE (r_ip1_alpha_copy)
+END IF
 CALL Deallocate_dims (dims)
 CALL Deallocate_model_vars (Bg0)
 CALL Deallocate_model_vars (dBg0)

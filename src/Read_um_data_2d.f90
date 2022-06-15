@@ -19,7 +19,8 @@ USE DefConsTypes, ONLY :  &
 
 IMPLICIT NONE
 
-INCLUDE '/scratch/singadm/pkg_hera/netcdf/4.3.3/gnu/4.9.2/include/netcdf.inc'
+!INCLUDE '/scratch/singadm/pkg_hera/netcdf/4.3.3/gnu/4.9.2/include/netcdf.inc'
+INCLUDE '/usr/include/netcdf.inc'
 
 !Declare parameters
 !------------------

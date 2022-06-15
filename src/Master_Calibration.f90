@@ -76,7 +76,7 @@ INCLUDE "Write_Covs.interface"
 ! Declare variables
 !==========================
 INTEGER                     :: ens, mem, lat, lev, long, item, t, Neffmems, Nloops, Nstates, loop, k
-REAL(ZREAL8)                :: Neffmems_r, NTotalStates_r, population_r, Nens_r, alpha
+REAL(ZREAL8)                :: Neffmems_r, NTotalStates_r, population_r, Nens_r, alpha, hScale1
 CHARACTER(LEN=320)          :: state_file
 CHARACTER(LEN=320)          :: paramfile
 CHARACTER(LEN=320)          :: meanfile
@@ -835,6 +835,11 @@ CASE (5)
 
     ! Normalize and square-root for standard deviations of horizontal spectra
     CALL CVT_Calibration_horizcovs (CVT, ControlVar, NTotalStates_r)  !ControlVar is not used in this call
+
+    ! Replace horizontal spectra with FFT of prescribed correlation function here
+    !hScale1 = 50000.0
+    !CALL SetCustomHorizSpec (hScale1, dims, CVT)
+ 
 
     IF (ForceCor) THEN
       ! Modify to ensure that the horizontal transform represents a correlation matrix

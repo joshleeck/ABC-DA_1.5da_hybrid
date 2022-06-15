@@ -31,6 +31,8 @@ USE DefConsTypes, ONLY :         &
     RF_tune,                     &
     EBV_tune,                    &
     EnSRF_tune,                  &
+    EnSRF_inf,                   &
+    RTTP_tune,                   &
     RF_file,                     &
     uncorr_thresh,               &
     dt, dt_da, t0,               &
@@ -44,7 +46,8 @@ IMPLICIT NONE
 
 !NetCDF library (file format used to read/write data)
 !----------------------------------------------------
-INCLUDE '/scratch/singadm/pkg_hera/netcdf/4.3.3/gnu/4.9.2/include/netcdf.inc'
+!INCLUDE '/scratch/singadm/pkg_hera/netcdf/4.3.3/gnu/4.9.2/include/netcdf.inc'
+INCLUDE '/usr/include/netcdf.inc'
 
 INCLUDE "InnerProdModelSpace.interface"
 INCLUDE "ModelObservations.interface"
@@ -56,7 +59,8 @@ INCLUDE "DeAllocate_Obs.interface"
 
 ! Declare variables
 !==========================
-CHARACTER(LEN=256)          :: ABCfilename, Diag_filename, input_filename
+CHARACTER(LEN=256)          :: ABCfilename, input_filename, Diag_filename, index
+CHARACTER(LEN=:), ALLOCATABLE :: Diag_hx
 INTEGER                     :: n, rint1, rint2, count, ncid, ierr, ntimes, dimid_time, DAtimesteps, timesteps, maxtime, t, obc, n2
 REAL(ZREAL8)                :: m1 = -1.0, c, c_star, denom, fac
 REAL(ZREAL8)                :: total, magnitude2_init, magnitude2_bg, epsilon_init, max_norm, r1, r2
@@ -67,8 +71,8 @@ TYPE(ABC_type)              :: ABC_anal0_data, ABC_bg0_data, ABC_init0_data, RF_
 TYPE(ABC_type), ALLOCATABLE :: diff_init_pert(:), diff_bg_pert(:)
 TYPE(ABC_type), ALLOCATABLE :: ABC_init_data(:), ABC_bg_data(:), ABC_anal_data(:)
 TYPE(ABC_type), ALLOCATABLE :: ABC_bg_data_t(:,:)
-REAL(ZREAL8), ALLOCATABLE   :: hx(:,:), Yb_pert(:,:), R(:,:), YbYbT(:,:), Gamma(:,:), Yb_pert_T(:,:), YbTGamYb(:,:)
-REAL(ZREAL8), ALLOCATABLE   :: Yb_mean(:), IPIV(:)
+REAL(ZREAL8), ALLOCATABLE   :: hx(:,:), Yb_pert(:,:),  R(:,:), YbYbT(:,:), Gamma(:,:), Yb_pert_T(:,:), YbTGamYb(:,:)
+REAL(ZREAL8), ALLOCATABLE   :: Yb_mean(:), IPIV(:), Yb_pert_inf(:,:)
 
 CHARACTER(LEN=320)          :: ABC_init0_file, ABC_anal0_file, ABC_bg0_file, Obs_filename
 
@@ -190,6 +194,7 @@ IF (Ens_opt == 4) THEN
   ALLOCATE (ABC_bg_data_t(1:NEnsMems,0:DAtimesteps))
   ALLOCATE (hx(1:count,1:NEnsMems))
   ALLOCATE (Yb_pert(1:count,1:NEnsMems))
+  ALLOCATE (Yb_pert_inf(1:count,1:NEnsMems))
   ALLOCATE (Yb_mean(1:count))
   ALLOCATE (R(1:count,1:count))
   ALLOCATE (YbYbT(1:count,1:count))
@@ -429,7 +434,7 @@ ELSE IF (Ens_opt == 3) THEN
 ! --- ENSEMBLE SQUARE ROOT FILTER ---
 ! ===================================
 ELSE IF (Ens_opt == 4) THEN
-  ! Ensemble square root filter adapted from Sakov and Oke (2009)
+  ! Ensemble square root filter adapted from Sakov and Oke (2008)
 
 
   ! Compute Y^b's, ensemble background in observation space using ensemble background
@@ -449,9 +454,11 @@ ELSE IF (Ens_opt == 4) THEN
 
     ! Second pass through observation file - write out diagnostic file
     ! Also stores values in array hx and R
-    WRITE (Diag_filename, '(A,A,I0.3,A)') TRIM(datadirABCEns_anal), '/Obs_Yb_', n, '.dat'
-    PRINT *, 'Outputting ensemble background values in observation space ', TRIM(Diag_filename)
-    CALL Write_Obs_hx ( TRIM(Diag_filename), Obs, n, NEnsMems, count, hx, R )
+    ! Odd issue with TRIM not removing excess whitespace, alternate approach
+    WRITE (index, '(I0.3)') n
+    Diag_hx = TRIM(datadirABCEns_anal) // '/Obs_Yb_' // TRIM(index) // '.dat'
+    PRINT *, 'Outputting ensemble background values in observation space ', Diag_hx
+    CALL Write_Obs_hx ( Diag_hx, Obs, n, NEnsMems, count, hx, R )
 
     Yb_mean = Yb_mean + hx(:,n)
   END DO
@@ -464,8 +471,10 @@ ELSE IF (Ens_opt == 4) THEN
     Yb_pert(:,n) = hx(:,n) - Yb_mean
   END DO
 
-  ! Store Y^b^T for use later
+  ! Store Y^b^T for use later, apply inflation factor (if required) for use in Kalman gain computation
   Yb_pert_T = TRANSPOSE(Yb_pert)
+  Yb_pert_T = Yb_pert_T * (1+EnSRF_inf)
+  Yb_pert_inf = Yb_pert * (1+EnSRF_inf)
 
   ! Compute Y^b Y^b^T and add R
   ! Another way to compute Y^b Y^b^T
@@ -480,7 +489,7 @@ ELSE IF (Ens_opt == 4) THEN
   !  END DO
   !END DO
 
-  YbYbT = MATMUL(Yb_pert,Yb_pert_T)
+  YbYbT = MATMUL(Yb_pert_inf,Yb_pert_T)
   denom = FLOAT(NEnsMems-1)
   Gamma = YbYbT/denom + R
 
@@ -529,6 +538,9 @@ ELSE IF (Ens_opt == 4) THEN
     DO n2 = 1, NEnsMems
       CALL Initialise_model_vars (tmp_state, .FALSE.)
       CALL Add_model_vars (tmp_state, ABC_bg_data_t(n2,DAtimesteps), .TRUE.)
+      ! Inflation factor on background perturbation if necessary, c_star is overwritten in next few lines
+      c_star = 1 + EnSRF_inf
+      CALL Mul_model_cons (tmp_state, c_star, .TRUE.)
 
       ! Multiply by correct coefficient in YbTGamYb - each variable is multiplied by same coefficient
       c_star = YbTGamYb(n2, n)
@@ -557,6 +569,14 @@ DO n = 1, NEnsMems
     CALL Div_model_cons (diff_bg_pert(n), denom, .TRUE.)
     CALL Mul_model_cons (diff_bg_pert(n), m1, .TRUE.)
     CALL Add_model_vars (diff_bg_pert(n), ABC_bg_data_t(n, DAtimesteps), .TRUE.)
+
+    ! Relaxation To Prior Perturbation if required, by setting RTTP_tune > 0.
+    ! Xa_inf = (Alf)Xb + (1-Alf)Xa
+    CALL Mul_model_cons (ABC_bg_data_t(n, DAtimesteps), RTTP_tune, .TRUE.)
+    ! Re-using variable name for scalings
+    c_star = 1 - RTTP_tune
+    CALL Mul_model_cons (diff_bg_pert(n), c_star, .TRUE.)
+    CALL Add_model_vars (diff_bg_pert(n), ABC_bg_data_t(n, DAtimesteps), .TRUE.)
   END IF
 
   ! Set rho field to follow unperturbed analysis
@@ -565,7 +585,7 @@ DO n = 1, NEnsMems
   CALL Add_model_vars (ABC_anal_data(n), diff_bg_pert(n), .TRUE.)
 
   ! Write out perturbed analyses to be used for next cycle
-  WRITE (ABCfilename, '(A,A,I0.3,A,I0.3,A)') TRIM(datadirABCEns_anal), '/ABC_anal_Ens', n, '.nc'
+  WRITE (ABCfilename, '(A,A,I0.3,A)') TRIM(datadirABCEns_anal), '/ABC_anal_Ens', n, '.nc'
   CALL Write_state_2d (ABCfilename, ABC_anal_data(n), dims, 1, 0, 0, .TRUE.)
     
 END DO
@@ -594,6 +614,7 @@ IF (Ens_opt == 4) THEN
   DEALLOCATE (hx)
   DEALLOCATE (Yb_mean)
   DEALLOCATE (Yb_pert)
+  DEALLOCATE (Yb_pert_inf)
   DEALLOCATE (R)
   DEALLOCATE (YbYbT)
   DEALLOCATE (Gamma)

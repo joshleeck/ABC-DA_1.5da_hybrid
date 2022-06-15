@@ -16,7 +16,8 @@ IMPLICIT NONE
 
 ! NetCDF library (file format used to read/write data)
 !----------------------------------------------------
-INCLUDE '/scratch/singadm/pkg_hera/netcdf/4.3.3/gnu/4.9.2/include/netcdf.inc'
+!INCLUDE '/scratch/singadm/pkg_hera/netcdf/4.3.3/gnu/4.9.2/include/netcdf.inc'
+INCLUDE '/usr/include/netcdf.inc'
 
 INTEGER, PARAMETER        :: ZREAL8 = SELECTED_REAL_KIND(15,307)
 INTEGER, PARAMETER        :: nlongs = 360            ! total number of longitude points

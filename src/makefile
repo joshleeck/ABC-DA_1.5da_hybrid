@@ -9,16 +9,16 @@
 #================================================================================
 # Compile and link options for Met Dept RACC cluster
 #================================================================================
-#CompileOpts=-O3
-#LinkOpts=-L/usr/local/lib -L/home/users/sws98rnb/Lib/lib -lnetcdff -lfftpack5.1d
-#LinkOptsEig=-L/usr/local/lib -L/home/users/sws98rnb/Lib/lib -lnetcdff -lfftpack5.1d -llapack -ltmglib -lrefblas
+CompileOpts=-O3
+LinkOpts=-L/usr/local/lib -L/storage/silver/metstudent/phd/bc012207/ABC_libs -lnetcdff -lfftpack5.1d
+LinkOptsEig=-L/usr/local/lib -L/storage/silver/metstudent/phd/bc012207/ABC_libs -lnetcdff -lfftpack5.1d -llapack -ltmglib -lblas
 
 #===============================================================================
 # Compile and link options for MSS cluster
 #===================================================================================
-CompileOpts=-O3
-LinkOpts=-L/scratch/leeck/ABC_libs -lnetcdff -lfftpack5.1d
-LinkOptsEig=-L/scratch/leeck/ABC_libs -lnetcdff -lfftpack5.1d -llapack -ltmglib -lblas
+#CompileOpts=-O3
+#LinkOpts=-L/scratch/leeck/ABC_libs -lnetcdff -lfftpack5.1d
+#LinkOptsEig=-L/scratch/leeck/ABC_libs -lnetcdff -lfftpack5.1d -llapack -ltmglib -lblas
 
 # Linking stage
 Master_PrepareABC_InitState.out: Master_PrepareABC_InitState.o DefConsTypes.o SetOptions.o Initialise_um_data.o Initialise_dims.o Initialise_model_vars.o Read_um_data_2d.o Set_grid.o Set_ht_dep_cons.o Process_um_data.o Write_state_2d.o BoundaryMod.o Boundaries.o Functions.o Energy.o Calc_geost.o Calc_hydro.o Initialise_CVT.o Initialise_ObsSpec.o Effective_buoyancy.o Calc_vert_mom_source.o Calc_horiz_div.o Calc_horiz_vort.o Deallocate_dims.o Deallocate_um_data.o Deallocate_model_vars.o
@@ -33,7 +33,7 @@ Master_Linear_Analysis.out: Master_Linear_Analysis.o DefConsTypes.o SetOptions.o
 Master_TestSuite.out: Master_TestSuite.o DefConsTypes.o SetOptions.o Read_state_2d.o Set_ht_dep_cons.o Initialise_model_vars.o Functions.o Boundaries.o Boundaries_adj.o Initialise_CVs.o Boundaries_CV.o Boundaries_CV_adj.o LinearBal_r.o LinearBal_r_adj.o Anbalw.o Anbalw_adj.o Helmholtz.o Helmholtz_adj.o HydroBal_b.o HydroBal_b_adj.o U_p.o U_p_adj.o U_v.o U_v_adj.o U_h.o U_h_adj.o U_trans.o U_trans_adj.o fft_real2spec.o fft_spec2real.o U_stddev.o U_p_inv.o Write_state_2d.o Helmholtz_inv.o Read_Covs.o InverseSymMat.o Write_one_field.o Initialise_CVT.o Initialise_ObsSpec.o Read_Obs.o ModelObservations_linear.o  ModelObservations_adj.o Initialise_dims.o ABC_NL_ModelDriver_DA.o ABC_NL_model.o Initialise_Averages.o ModelObservations.o Write_Obs.o DeAllocate_Obs.o Deallocate_Averages.o Deallocate_model_vars.o Deallocate_CVs.o Deallocate_dims.o Deallocate_CVT.o U_trans_alpha.o U_trans_alpha_adj.o U_h_alpha.o U_v_alpha.o U_h_alpha_adj.o U_v_alpha_adj.o SetHorizLoc_alpha.o SetVertLoc_alpha.o Fn_GC_corr.o
 	gfortran -o $@ $^ $(LinkOptsEig)
 
-Master_Calibration.out: Master_Calibration.o DefConsTypes.o SetOptions.o Initialise_um_data.o Initialise_dims.o Initialise_model_vars.o Read_um_data_2d.o Set_grid.o Set_ht_dep_cons.o Process_um_data.o Boundaries.o Write_state_2d.o ABC_NL_model.o Functions.o BoundaryMod.o Initialise_Averages.o Read_state_2d.o Helmholtz_inv.o LinearBal_r.o Calc_vert_cov1.o InverseSymMat.o Boundaries_CV.o Add_model_vars.o Div_model_cons.o Write_CV.o Subtract_model_vars.o U_p_inv.o Anbalw.o HydroBal_b.o Write_one_field.o Read_Covs.o Add_CVs.o Div_CV_cons.o Subtract_CVs.o CVT_Calibration_stddevs.o CVT_Calibration_vertcovs.o VertEigens.o CVT_Calibration_horizcovs.o Write_Covs.o Read_CV.o U_stddev_inv.o U_h_inv.o U_v_inv.o Initialise_CVT.o Initialise_CVs.o  fft_real2spec.o Initialise_ObsSpec.o Smooth.o Ensure_correlation_matrix.o Deallocate_dims.o Deallocate_um_data.o Deallocate_model_vars.o Deallocate_CVs.o Deallocate_Averages.o Deallocate_CVT.o
+Master_Calibration.out: Master_Calibration.o DefConsTypes.o SetOptions.o Initialise_um_data.o Initialise_dims.o Initialise_model_vars.o Read_um_data_2d.o Set_grid.o Set_ht_dep_cons.o Process_um_data.o Boundaries.o Write_state_2d.o ABC_NL_model.o Functions.o BoundaryMod.o Initialise_Averages.o Read_state_2d.o Helmholtz_inv.o LinearBal_r.o Calc_vert_cov1.o InverseSymMat.o Boundaries_CV.o Add_model_vars.o Div_model_cons.o Write_CV.o Subtract_model_vars.o U_p_inv.o Anbalw.o HydroBal_b.o Write_one_field.o Read_Covs.o Add_CVs.o Div_CV_cons.o Subtract_CVs.o CVT_Calibration_stddevs.o CVT_Calibration_vertcovs.o VertEigens.o CVT_Calibration_horizcovs.o Write_Covs.o Read_CV.o U_stddev_inv.o U_h_inv.o U_v_inv.o Initialise_CVT.o Initialise_CVs.o  fft_real2spec.o Initialise_ObsSpec.o Smooth.o Ensure_correlation_matrix.o Deallocate_dims.o Deallocate_um_data.o Deallocate_model_vars.o Deallocate_CVs.o Deallocate_Averages.o Deallocate_CVT.o SetCustomHorizSpec.o
 	gfortran -o $@ $^ $(LinkOptsEig)
 
 Master_MakeBgObs.out: Master_MakeBgObs.o DefConsTypes.o SetOptions.o Initialise_CVT.o Initialise_ObsSpec.o DeAllocate_Obs.o Initialise_model_vars.o Initialise_dims.o Read_state_2d.o Set_ht_dep_cons.o ABC_NL_ModelDriver_DA.o ModelObservations.o Functions.o Boundaries.o ABC_NL_model.o Initialise_Averages.o Write_state_2d.o Read_Covs.o Initialise_CVs.o U_trans.o Add_model_vars.o U_h.o U_v.o U_p.o U_stddev.o fft_spec2real.o Helmholtz.o LinearBal_r.o HydroBal_b.o Anbalw.o Boundaries_CV.o Write_Obs.o Calc_hydro.o Calc_geost.o Calc_vert_mom_source.o Calc_horiz_div.o Calc_horiz_vort.o Effective_buoyancy.o Deallocate_dims.o Deallocate_um_data.o Deallocate_model_vars.o Deallocate_CVs.o Deallocate_CVT.o Deallocate_Averages.o
@@ -331,6 +331,9 @@ SetHorizLoc_alpha.o: SetHorizLoc_alpha.f90 DefConsTypes.o
 	gfortran -c $< $(CompileOpts)
 
 SetVertLoc_alpha.o: SetVertLoc_alpha.f90 DefConsTypes.o
+	gfortran -c $< $(CompileOpts)
+
+SetCustomHorizSpec.o: SetCustomHorizSpec.f90 DefConsTypes.o
 	gfortran -c $< $(CompileOpts)
 
 Fn_GC_corr.o: Fn_GC_corr.f90 DefConsTypes.o

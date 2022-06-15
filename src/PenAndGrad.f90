@@ -67,7 +67,7 @@ USE DefConsTypes, ONLY :  &
   dt, dt_da,              &
   Cov_WeightE,            &
   Cov_WeightC,            &
-  InterVarLoc             
+  VarLoc             
 
 IMPLICIT NONE
 
@@ -123,7 +123,7 @@ INTEGER                                :: t, ModelStepsPerDAStep, n
 COMPLEX(ZREAL8)                        :: Jb_complex
 TYPE(CV_type)                          :: diffcv
 CHARACTER(LEN=320)                     :: Diag_filename
-TYPE(ABC_type), ALLOCATABLE            :: diffcv_alpha(:), tmp_Uv(:), EM_x_copy(:), tmp_alpha(:)
+TYPE(ABC_type), ALLOCATABLE            :: diffcv_alpha(:), tmp_Uv(:), EM_x_copy(:), tmp_alpha(:), diffcv_alpha_copy(:)
 REAL(ZREAL8)                           :: beta_c, beta_e
 
 
@@ -139,6 +139,9 @@ ALLOCATE (diffcv_alpha(1:Nacv))
 ALLOCATE (tmp_Uv(1:Nacv))
 ALLOCATE (EM_x_copy(1:Nacv))
 ALLOCATE (tmp_alpha(1:Nacv))
+IF (VarLoc .NE. 1 .AND. VarLoc .NE. 2) THEN
+  ALLOCATE (diffcv_alpha_copy(1:Nacv))
+END IF
 DO n = 1, Nacv
   CALL Initialise_model_vars (diffcv_alpha(n), .FALSE.)
   CALL Initialise_model_vars (tmp_Uv(n), .FALSE.)
@@ -412,11 +415,12 @@ IF (compute_grad) THEN
       ! Apply adjoint of localisation on error modes
       CALL U_trans_alpha_adj( LSfc(0), tmp_alpha(n), EM_x_copy(n), CVTdata, dims, L_alpha )
 
-      IF (.NOT. InterVarLoc) THEN
-        ! Same alpha fields applied on each variable from each variable
-        CALL Apply_alpha_model_vars (grad0_alpha(n), tmp_alpha(n))
-      ELSE
+      IF (VarLoc == 1) THEN
         grad0_alpha(n) = tmp_alpha(n)
+      ELSE
+        ! Same alpha fields applied on each variable from each variable, or specific variables
+        ! according to desired retention of inter-variable covariances
+        CALL Apply_alpha_model_vars (grad0_alpha(n), tmp_alpha(n), VarLoc)
       END IF
 
       ! Apply weighting
@@ -463,10 +467,29 @@ PRINT *, 'Jo = ', Jo
 Je = 0
 IF (Use_EOTD) THEN
   DO n = 1, Nacv
-    IF (.NOT. InterVarLoc) THEN
+    IF (VarLoc == 1) THEN
+      Je = Je + InnerProdModelSpace (diffcv_alpha(n), diffcv_alpha(n), ignore_halos=.TRUE.) / (2.0)
+    
+    ELSE IF (VarLoc == 2) THEN ! No inter-variable localisation, by definition of L=UU^T we have an additional
+                               ! factor of 5 in the cost function
       Je = Je + InnerProdModelSpace (diffcv_alpha(n), diffcv_alpha(n), ignore_halos=.TRUE.) / (2.0*5.0)
-    ELSE
-      Je = Je + InnerProdModelSpace (diffcv_alpha(n), diffcv_alpha(n), ignore_halos=.TRUE.) / 2.0
+    
+    ELSE IF (VarLoc == 4) THEN ! Inter-variable localisation only w.r.t v, so treat v as separate part of
+                               ! control vector, and the rest of the variables have factor of 4 implied in L
+      ! Add portions of the control vector other than v
+      CALL Initialise_model_vars (diffcv_alpha_copy(n), .FALSE.)
+      CALL Add_model_vars (diffcv_alpha_copy(n), diffcv_alpha(n), .TRUE.)
+      diffcv_alpha_copy(n) % v(0:nlongs+1,0:nlevs+1) = 0
+      Je = Je + InnerProdModelSpace (diffcv_alpha_copy(n), diffcv_alpha_copy(n), ignore_halos=.TRUE.) / (2.0*4.0)
+
+      ! Add v portion of the control vector 
+      CALL Initialise_model_vars (diffcv_alpha_copy(n), .FALSE.)
+      CALL Add_model_vars (diffcv_alpha_copy(n), diffcv_alpha(n), .TRUE.)
+      diffcv_alpha_copy(n) % u(0:nlongs+1,0:nlevs+1) = 0
+      diffcv_alpha_copy(n) % w(0:nlongs+1,0:nlevs+1) = 0
+      diffcv_alpha_copy(n) % r(0:nlongs+1,0:nlevs+1) = 0
+      diffcv_alpha_copy(n) % b(0:nlongs+1,0:nlevs+1) = 0
+      Je = Je + InnerProdModelSpace (diffcv_alpha_copy(n), diffcv_alpha_copy(n), ignore_halos=.TRUE.) / 2.0
     END IF
   END DO
 END IF
@@ -494,6 +517,9 @@ DO n = 1, Nacv
   CALL Deallocate_model_vars (tmp_Uv(n))
   CALL Deallocate_model_vars (EM_x_copy(n))
   CALL Deallocate_model_vars (tmp_alpha(n))
+  IF (VarLoc .NE. 1 .AND. VarLoc .NE. 2) THEN
+    CALL Deallocate_model_vars (diffcv_alpha_copy(n))
+  END IF
 END DO
 PRINT *, 'DONE'
 

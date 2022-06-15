@@ -98,9 +98,9 @@ USE DefConsTypes, ONLY :     &
   crit_inner,                &
   Cov_weightE,               &
   Cov_weightC,               &
-  InterVarLoc,               &
+  VarLoc,                    &
   datadirEM,                 &
-  Ens_opt,                 &
+  Ens_opt,                   &
   CVT_order,                 &
   CVT_param_opt_gb,          &
   CVT_param_opt_hb,          &
@@ -290,7 +290,7 @@ PRINT*, 'N_innerloops_max         = ', N_innerloops_max
 PRINT*, 'crit_inner               = ', crit_inner
 PRINT*, 'Cov_weightE              = ', Cov_weightE
 PRINT*, 'Cov_weightC              = ', Cov_weightC
-PRINT*, 'InterVarLoc              = ', InterVarLoc
+PRINT*, 'VarLoc                   = ', VarLoc
 PRINT*, 'datadirEM                = ', datadirEM
 PRINT*, 'mu                       = ', mu
 PRINT*, 'minus_mu                 = ', minus_mu
