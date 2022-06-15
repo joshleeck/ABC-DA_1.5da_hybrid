@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 plt.rcParams.update({'font.size':16})
 
-rmse_file = '/scratch/leeck/ABC-DA_1.5da_leeck_364/Plots/cycle-averaged_RMSE.txt'
+rmse_file = 'test/Plots/cycle-averaged_RMSE.txt'
 n_runs = 5
 
 u_data = []

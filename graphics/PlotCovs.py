@@ -70,8 +70,8 @@ plot_raw_covs     = False
 plot_implied_covs = True
 
 # Set directory of the input ensemble
-data_dir_RawCovs     = '/scratch/leeck/ABC-DA_1.5da_leeck_364/examples/Master_RawCov/'
-data_dir_ImpliedCovs = '/scratch/leeck/ABC-DA_1.5da_leeck_364/examples/Master_ImpliedCov/'
+data_dir_RawCovs     = 'test/examples/Master_RawCov/'
+data_dir_ImpliedCovs = 'test/examples/Master_ImpliedCov/'
 
 # Set the domain dimensions
 nlongs   = 364

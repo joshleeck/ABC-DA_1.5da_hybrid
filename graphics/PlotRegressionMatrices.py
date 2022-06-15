@@ -24,7 +24,7 @@ import matplotlib
 import os
 
 # Set directory of the CVT file
-datadirCVT = '/scratch/leeck/ABC-DA_1.5da_leeck_364/examples/Master_Calibration/'
+datadirCVT = 'test/examples/Master_Calibration/'
 CVT_file   = 'CVT.nc'
 
 # Set the domain dimensions

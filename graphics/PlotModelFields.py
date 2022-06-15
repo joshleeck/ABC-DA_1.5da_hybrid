@@ -69,7 +69,7 @@ import os
 
 # Set directories of the input data (each is a different experiment)
 data_dir = []
-data_dir.append('/scratch/leeck/ABC-DA_1.5da_leeck_364/test/da_cycle_0001')
+data_dir.append('test/test/da_cycle_0001')
 # Can add more directories in the same way
 
 

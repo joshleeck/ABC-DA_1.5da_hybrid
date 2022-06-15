@@ -52,7 +52,7 @@ if (Res == 1500):
   # This is standard resolution (called high resolution in paper)
   PlotTitle = 'Normal'
 
-MainDir = '/scratch/leeck/ABC-DA_1.5da_leeck_364/'
+MainDir = 'test/'
 
 freebg = True
 

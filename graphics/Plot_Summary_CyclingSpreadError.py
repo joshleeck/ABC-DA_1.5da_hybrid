@@ -57,7 +57,7 @@ data_type = 'rmse_spr'
 Res = 1500
 PlotTitle = 'Normal'
 
-MainDir = '/scratch/leeck/ABC-DA_1.5da_leeck_364/'
+MainDir = 'test/'
 
 ensspr = True
 cov_c = True
@@ -77,7 +77,7 @@ ExpFiles    = []
 
 ExpFiles.append (MainDir + '/EnSRFd/SummaryEnsSpread.dat')
 
-impliedcovfile = '/scratch/leeck/ABC-DA_1.5da_leeck_364/examples/Master_ImpliedCov/ImpliedCov.dat'
+impliedcovfile = 'test/examples/Master_ImpliedCov/ImpliedCov.dat'
 
 nlines      = len(ExpFiles)
 

@@ -63,7 +63,7 @@ data_type = 'anal'
 Res = 1500
 PlotTitle = 'Normal'
 
-MainDir = '/scratch/leeck/ABC-DA_1.5da_leeck_364/'
+MainDir = 'test/'
 
 freebg = True
 truth = True
