@@ -3,17 +3,19 @@
 &UserOptions
 
 ! Make ensemble of perturbed analyses
-! ------------------------------ 
+! ------------------------------
   ABC_anal_ctrl_file       = 'Anal.nc'
-  datadirABC_anal          = '/scratch/leeck/ABC-DA_1.5da_leeck_364/test/da_cycle_0001/'
-  datadirABCEns_anal       = './EnSRF'
-  datadirABCEns_bg         = '/scratch/leeck/ABC-DA_1.5da_leeck_364/test/InitEns/'
-  NEnsMems                 = 30
-  nlongs                   = 364
-  nlevs                    = 60
+  datadirABC_anal          = '$CYCLE_DIR'
+  datadirABCEns_bg         = '$ENS_DIR'
+  datadirABCEns_anal       = '$CYCLE_DIR/Ens'
+  NEnsMems                 = $N_ENS
   Ens_opt                  = 4
-  fullpath_Obs             = '/scratch/leeck/ABC-DA_1.5da_leeck_364/test/Obs+Truth/Obs.dat'
   EnSRF_tune               = 0.5
+  EnSRF_inf                = 0.5
+  RTTP_tune                = 0.9
+  fullpath_Obs             = '$OBS_DIR/Obs.dat'
+  nlongs                   = $NLONGS
+  nlevs                    = $NLEVS
   dt                       = 1.0
   dt_da                    = 600.0
   t0                       = 0

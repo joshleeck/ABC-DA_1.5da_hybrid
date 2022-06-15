@@ -5,7 +5,7 @@
 ! Master_PrepareABC_InitState
 ! ------------------------------
   Init_ABC_opt             = 1
-  datadirUM                = '/scratch/leeck/ABC-DA_1.5da_leeck/data'
+  datadirUM                = 'test/data'
   init_um_file             = 'SINGV_20190607T0100Z.nc'
   datadirABC_out           = '.'
   init_ABC_file            = 'ABC_InitialConds_SINGV.nc'
