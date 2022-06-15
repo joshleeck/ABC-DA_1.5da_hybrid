@@ -3,7 +3,9 @@ FUNCTION Fn_GC_corr (zdiff, vScale_alpha) RESULT (corr)
 ! Code to compute the Gaspari-Cohn correlation as a function of difference in z (model height)
 ! Correlation function given by equation (4.10) in Gaspari and Cohn,
 ! Q. J. R. Meteorol. Soc., 125, 723-757. vScale_alpha is the separation at
-! which the correlation reaches zero, when 2c <= |vScale_alpha| as shown in equation.
+! which the correlation reaches zero, when 2c <= |zdiff| as shown in equation.
+! 
+! This is also now used for horizontal correlation, i.e. function of difference in horizontal distance
 ! J Lee. 22-03-2021 
 
 USE DefConsTypes, ONLY :  &

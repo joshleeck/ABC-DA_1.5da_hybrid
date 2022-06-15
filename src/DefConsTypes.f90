@@ -485,7 +485,10 @@ REAL(ZREAL8)              :: minus_mu                     ! Negative of above
 REAL(ZREAL8)              :: crit_inner = 0.01            ! Stopping criterion for inner loop
 REAL(ZREAL8)              :: Cov_weightE = 50.0           ! Percentage weighting of EOTD-derived covariance
 REAL(ZREAL8)              :: Cov_weightC = 50.0           ! Percentage weighting of climatological covariance
-LOGICAL                   :: InterVarLoc = .FALSE.        ! Use inter-variable localisation? (i.e. use different control fields for each variable)
+INTEGER                   :: VarLoc = 1                   ! 1 = Full inter-variable localisation (i.e. use different control fields for each variable)
+                                                          ! 2 = Retain all inter-variable covariances (i.e. no inter-variable localisation)
+                                                          ! 3 = Retain only covariances between (a) u,v and (b) w,r_prime,b_prime (not yet implemented)
+                                                          ! 4 = Retain all inter-variable covariances except with v
 REAL(ZREAL8)              :: hScale_alpha = 10000.0       ! Horizontal length-scale used in localisation of alpha control variables (in m)
 REAL(ZREAL8)              :: vScale_alpha = 3000.0        ! Vertical length-scale used in localisation of alpha control variables (in m)
 
@@ -525,7 +528,10 @@ CHARACTER(LEN=256)        :: epsilon_diagnostic=''        ! Diagnostic file whic
 CHARACTER(LEN=256)        :: epsilon_file=''              ! Directory and file which contains the total norm to scale for ensemble bred vector method
 REAL(ZREAL8)              :: RF_tune = 1.0                ! Tuning factor for RF method
 REAL(ZREAL8)              :: EBV_tune = 1.0               ! Tuning factor for ensemble bred vector method
-REAL(ZREAL8)              :: EnSRF_tune = 0.5             ! Tuning factor for ensemble square root filter method
+REAL(ZREAL8)              :: EnSRF_tune = 0.5             ! Tuning factor for ensemble square root filter method, default 0.5 following Sakov and Oke (2009)
+REAL(ZREAL8)              :: EnSRF_inf = 0.0              ! Inflation value, c_inf, where background error covariance in Kalman gain inflated by 1+c_inf
+REAL(ZREAL8)              :: RTTP_tune = 0.0              ! Alf value for Relaxation Towards Prior Perturbation tuning factor: Xa_inf = (Alf)Xb + (1-Alf)Xa
+                                                          ! Default value is 0.0, which means no inflation and full weight to analysis perturbation Xa
 CHARACTER(LEN=256)        :: RF_file=''                   ! Single run file containing many states to sample for RF method
 INTEGER                   :: uncorr_thresh = 5            ! Threshold "dump spacing" btw. two states in RF_file for which they are assumed to be uncorr.
 
@@ -546,7 +552,7 @@ NAMELIST / UserOptions /                                                        
 ! --- DA ---
   datadirCVT, CVT_file, Hybrid_opt, Vartype, datadirAnal, anal_file, analinc_file, &
   N_outerloops, N_innerloops_max, crit_inner, Cov_weightE, Cov_weightC,            &
-  InterVarLoc, hScale_alpha, vScale_alpha, datadirEM,                              &
+  VarLoc, hScale_alpha, vScale_alpha, datadirEM,                                   &
 ! --- Linear analysis ---
   datadirLinearAnal,                                                               &
 ! --- Calibration, CVT, etc.
@@ -564,7 +570,7 @@ NAMELIST / UserOptions /                                                        
   ABC_init_ctrl_file, ABC_bg_ctrl_file, ABC_anal_ctrl_file, datadirABC_init,       &
   datadirABC_anal, datadirABC_bg, datadirABCEns_init, datadirABCEns_bg,            &
   datadirABCEns_anal, fullpath_Obs, Ens_opt, epsilon_diagnostic, epsilon_file,     &
-  RF_tune, EBV_tune, EnSRF_tune, RF_file, uncorr_thresh
+  RF_tune, EBV_tune, EnSRF_tune, EnSRF_inf, RTTP_tune, RF_file, uncorr_thresh
 
 
 
