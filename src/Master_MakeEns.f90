@@ -418,7 +418,7 @@ ELSE IF (Ens_opt == 3) THEN
     !magnitude2_bg = InnerProdModelSpace(diff_bg_pert(n), diff_bg_pert(n))
     magnitude2_bg = diff_bg_pert(n) % Total_Energy
 
-    c_star = epsilon_init/magnitude2_bg
+    c_star = SQRT(epsilon_init/magnitude2_bg)
     CALL Mul_model_cons (diff_bg_pert(n), c_star, .TRUE.)
   END DO
 
