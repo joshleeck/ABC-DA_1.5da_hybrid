@@ -30,7 +30,7 @@ Master_RunNLModel.out: Master_RunNLModel.o DefConsTypes.o SetOptions.o Initialis
 Master_Linear_Analysis.out: Master_Linear_Analysis.o DefConsTypes.o SetOptions.o Initialise_CVT.o Initialise_ObsSpec.o
 	gfortran -o $@ $^ $(LinkOptsEig)
 
-Master_TestSuite.out: Master_TestSuite.o DefConsTypes.o SetOptions.o Read_state_2d.o Set_ht_dep_cons.o Initialise_model_vars.o Functions.o Boundaries.o Boundaries_adj.o Initialise_CVs.o Boundaries_CV.o Boundaries_CV_adj.o LinearBal_r.o LinearBal_r_adj.o Anbalw.o Anbalw_adj.o Helmholtz.o Helmholtz_adj.o HydroBal_b.o HydroBal_b_adj.o U_p.o U_p_adj.o U_v.o U_v_adj.o U_h.o U_h_adj.o U_trans.o U_trans_adj.o fft_real2spec.o fft_spec2real.o U_stddev.o U_p_inv.o Write_state_2d.o Helmholtz_inv.o Read_Covs.o InverseSymMat.o Write_one_field.o Initialise_CVT.o Initialise_ObsSpec.o Read_Obs.o ModelObservations_linear.o  ModelObservations_adj.o Initialise_dims.o ABC_NL_ModelDriver_DA.o ABC_NL_model.o Initialise_Averages.o ModelObservations.o Write_Obs.o DeAllocate_Obs.o Deallocate_Averages.o Deallocate_model_vars.o Deallocate_CVs.o Deallocate_dims.o Deallocate_CVT.o U_trans_alpha.o U_trans_alpha_adj.o U_h_alpha.o U_v_alpha.o U_h_alpha_adj.o U_v_alpha_adj.o SetHorizLoc_alpha.o SetVertLoc_alpha.o Fn_GC_corr.o
+Master_TestSuite.out: Master_TestSuite.o DefConsTypes.o SetOptions.o Read_state_2d.o Set_ht_dep_cons.o Initialise_model_vars.o Functions.o Boundaries.o Boundaries_adj.o Initialise_CVs.o Boundaries_CV.o Boundaries_CV_adj.o LinearBal_r.o LinearBal_r_adj.o Anbalw.o Anbalw_adj.o Helmholtz.o Helmholtz_adj.o HydroBal_b.o HydroBal_b_adj.o U_p.o U_p_adj.o U_v.o U_v_adj.o U_h.o U_h_adj.o U_trans.o U_trans_adj.o fft_real2spec.o fft_spec2real.o U_stddev.o U_p_inv.o Write_state_2d.o Helmholtz_inv.o Read_Covs.o InverseSymMat.o Write_one_field.o Initialise_CVT.o Initialise_ObsSpec.o Read_Obs.o ModelObservations_linear.o  ModelObservations_adj.o Initialise_dims.o ABC_NL_ModelDriver_DA.o ABC_NL_model.o Initialise_Averages.o ModelObservations.o Write_Obs.o DeAllocate_Obs.o Deallocate_Averages.o Deallocate_model_vars.o Deallocate_CVs.o Deallocate_dims.o Deallocate_CVT.o U_trans_alpha.o U_trans_alpha_adj.o U_h_alpha.o U_v_alpha.o U_h_alpha_adj.o U_v_alpha_adj.o SetHorizLoc_alpha.o SetVertLoc_alpha.o SetHorizLoc_alpha_vdl.o SetVertLoc_alpha_vdl.o Fn_GC_corr.o
 	gfortran -o $@ $^ $(LinkOptsEig)
 
 Master_Calibration.out: Master_Calibration.o DefConsTypes.o SetOptions.o Initialise_um_data.o Initialise_dims.o Initialise_model_vars.o Read_um_data_2d.o Set_grid.o Set_ht_dep_cons.o Process_um_data.o Boundaries.o Write_state_2d.o ABC_NL_model.o Functions.o BoundaryMod.o Initialise_Averages.o Read_state_2d.o Helmholtz_inv.o LinearBal_r.o Calc_vert_cov1.o InverseSymMat.o Boundaries_CV.o Add_model_vars.o Div_model_cons.o Write_CV.o Subtract_model_vars.o U_p_inv.o Anbalw.o HydroBal_b.o Write_one_field.o Read_Covs.o Add_CVs.o Div_CV_cons.o Subtract_CVs.o CVT_Calibration_stddevs.o CVT_Calibration_vertcovs.o VertEigens.o CVT_Calibration_horizcovs.o Write_Covs.o Read_CV.o U_stddev_inv.o U_h_inv.o U_v_inv.o Initialise_CVT.o Initialise_CVs.o  fft_real2spec.o Initialise_ObsSpec.o Smooth.o Ensure_correlation_matrix.o Deallocate_dims.o Deallocate_um_data.o Deallocate_model_vars.o Deallocate_CVs.o Deallocate_Averages.o Deallocate_CVT.o SetCustomHorizSpec.o
@@ -39,7 +39,7 @@ Master_Calibration.out: Master_Calibration.o DefConsTypes.o SetOptions.o Initial
 Master_MakeBgObs.out: Master_MakeBgObs.o DefConsTypes.o SetOptions.o Initialise_CVT.o Initialise_ObsSpec.o DeAllocate_Obs.o Initialise_model_vars.o Initialise_dims.o Read_state_2d.o Set_ht_dep_cons.o ABC_NL_ModelDriver_DA.o ModelObservations.o Functions.o Boundaries.o ABC_NL_model.o Initialise_Averages.o Write_state_2d.o Read_Covs.o Initialise_CVs.o U_trans.o Add_model_vars.o U_h.o U_v.o U_p.o U_stddev.o fft_spec2real.o Helmholtz.o LinearBal_r.o HydroBal_b.o Anbalw.o Boundaries_CV.o Write_Obs.o Calc_hydro.o Calc_geost.o Calc_vert_mom_source.o Calc_horiz_div.o Calc_horiz_vort.o Effective_buoyancy.o Deallocate_dims.o Deallocate_um_data.o Deallocate_model_vars.o Deallocate_CVs.o Deallocate_CVT.o Deallocate_Averages.o
 	gfortran -o $@ $^ $(LinkOpts)
 
-Master_ImpliedCov.out: Master_ImpliedCov.o DefConsTypes.o SetOptions.o Read_state_2d.o Initialise_CVs.o U_trans_adj.o U_trans_alpha_adj.o U_trans_alpha.o U_trans.o Write_state_2d.o U_v_adj.o U_h_adj.o U_p_adj.o U_h_alpha_adj.o U_v_alpha_adj.o U_stddev.o Boundaries_adj.o Anbalw_adj.o HydroBal_b_adj.o LinearBal_r_adj.o Helmholtz_adj.o U_v.o U_h.o U_p.o U_v_alpha.o U_h_alpha.o Boundaries.o Anbalw.o HydroBal_b.o LinearBal_r.o Helmholtz.o fft_real2spec.o fft_spec2real.o Initialise_CVT.o Initialise_aCVT.o Initialise_ObsSpec.o Functions.o Boundaries_CV.o Mul_CV_cons.o Set_ht_dep_cons.o Read_Covs.o Initialise_model_vars.o Add_model_vars.o Mul_model_vars.o Mul_model_cons.o Div_model_cons.o Write_CV.o Boundaries_CV_adj.o SetHorizLoc_alpha.o SetVertLoc_alpha.o Fn_GC_corr.o Deallocate_dims.o Deallocate_model_vars.o Deallocate_CVs.o Deallocate_CVT.o Deallocate_aCVT.o Initialise_dims.o
+Master_ImpliedCov.out: Master_ImpliedCov.o DefConsTypes.o SetOptions.o Read_state_2d.o Initialise_CVs.o U_trans_adj.o U_trans_alpha_vdl_adj.o U_trans_alpha_vdl.o U_trans_alpha_adj.o U_trans_alpha.o U_trans.o Write_state_2d.o U_v_adj.o U_h_adj.o U_p_adj.o U_h_alpha_vdl_adj.o U_h_alpha_adj.o U_v_alpha_vdl_adj.o U_v_alpha_adj.o U_stddev.o Boundaries_adj.o Anbalw_adj.o HydroBal_b_adj.o LinearBal_r_adj.o Helmholtz_adj.o U_v.o U_h.o U_p.o U_v_alpha_vdl.o U_v_alpha.o U_h_alpha_vdl.o U_h_alpha.o Boundaries.o Anbalw.o HydroBal_b.o LinearBal_r.o Helmholtz.o fft_real2spec.o fft_spec2real.o Initialise_CVT.o Initialise_aCVT.o Initialise_ObsSpec.o Functions.o Boundaries_CV.o Mul_CV_cons.o Set_ht_dep_cons.o Read_Covs.o Initialise_model_vars.o Add_model_vars.o Mul_model_vars.o Mul_model_cons.o Div_model_cons.o Write_CV.o Boundaries_CV_adj.o SetHorizLoc_alpha.o SetVertLoc_alpha.o SetHorizLoc_alpha_vdl.o SetVertLoc_alpha_vdl.o Fn_GC_corr.o Deallocate_dims.o Deallocate_model_vars.o Deallocate_CVs.o Deallocate_CVT.o Deallocate_aCVT.o Initialise_dims.o
 	gfortran -o $@ $^ $(LinkOptsEig)
 
 Master_ImpliedTests.out: Master_ImpliedTests.o DefConsTypes.o SetOptions.o Read_state_2d.o Initialise_CVs.o U_v_adj.o U_h_adj.o Boundaries_adj.o U_v.o U_h.o Boundaries.o fft_real2spec.o fft_spec2real.o Initialise_CVT.o Initialise_ObsSpec.o Functions.o Boundaries_CV.o Set_ht_dep_cons.o Read_Covs.o Initialise_model_vars.o Write_CV.o Boundaries_CV_adj.o Deallocate_dims.o Initialise_dims.o Deallocate_model_vars.o Deallocate_CVs.o Deallocate_CVT.o
@@ -48,7 +48,7 @@ Master_ImpliedTests.out: Master_ImpliedTests.o DefConsTypes.o SetOptions.o Read_
 Master_RawCov.out: Master_RawCov.o DefConsTypes.o SetOptions.o Read_state_2d.o Initialise_model_vars.o Set_ht_dep_cons.o Write_state_2d.o Initialise_CVT.o Initialise_ObsSpec.o Boundaries.o Deallocate_dims.o Initialise_dims.o Deallocate_model_vars.o
 	gfortran -o $@ $^ $(LinkOpts)
 
-Master_Assimilate.out: Master_Assimilate.o DefConsTypes.o SetOptions.o PenAndGrad.o Read_state_2d.o Initialise_model_vars.o Set_ht_dep_cons.o Write_state_2d.o Functions.o Boundaries.o Boundaries_adj.o Boundaries_CV.o Boundaries_CV_adj.o LinearBal_r.o LinearBal_r_adj.o Anbalw.o Anbalw_adj.o Helmholtz.o Helmholtz_adj.o HydroBal_b.o HydroBal_b_adj.o U_p.o U_p_adj.o U_v.o U_v_alpha.o U_v_adj.o U_v_alpha_adj.o U_h.o U_h_alpha.o U_h_adj.o U_h_alpha_adj.o U_trans.o U_trans_adj.o U_trans_alpha.o U_trans_alpha_adj.o fft_real2spec.o fft_spec2real.o U_stddev.o U_p_inv.o Helmholtz_inv.o Read_Covs.o InverseSymMat.o Read_Obs.o ModelObservations_linear.o  ModelObservations_adj.o DeAllocate_Obs.o Initialise_CVs.o Subtract_model_vars.o U_trans_inv.o Minus_CVs.o Add_pert_CVs.o Add_pert_model_vars.o Add_model_vars.o Mul_model_vars.o Mul_model_cons.o Div_model_cons.o Initialise_ObsSpec.o ABC_NL_ModelDriver_DA.o ModelObservations_ZeroPert.o Add_CVs.o Subtract_CVs.o Mul_CV_cons.o Write_one_field.o U_stddev_inv.o U_v_inv.o U_h_inv.o Initialise_CVT.o Initialise_aCVT.o ModelObservations.o ABC_NL_model.o Initialise_Averages.o Write_CV.o Write_Obs.o Energy.o Calc_geost.o Calc_hydro.o SetHorizLoc_alpha.o SetVertLoc_alpha.o Fn_GC_corr.o Deallocate_dims.o Deallocate_model_vars.o Deallocate_CVs.o Deallocate_Averages.o Initialise_dims.o Deallocate_CVT.o Deallocate_aCVT.o Apply_alpha_model_vars.o
+Master_Assimilate.out: Master_Assimilate.o DefConsTypes.o SetOptions.o PenAndGrad.o PenAndGradVDL.o Read_state_2d.o Initialise_model_vars.o Set_ht_dep_cons.o Write_state_2d.o Functions.o Boundaries.o Boundaries_adj.o Boundaries_CV.o Boundaries_CV_adj.o LinearBal_r.o LinearBal_r_adj.o Anbalw.o Anbalw_adj.o Helmholtz.o Helmholtz_adj.o HydroBal_b.o HydroBal_b_adj.o U_p.o U_p_adj.o U_v.o U_v_alpha.o U_v_adj.o U_v_alpha_adj.o U_h.o U_h_alpha.o U_h_adj.o U_h_alpha_adj.o U_trans.o U_trans_adj.o U_trans_alpha.o U_trans_alpha_vdl.o U_trans_alpha_adj.o U_trans_alpha_vdl_adj.o fft_real2spec.o fft_spec2real.o U_stddev.o U_p_inv.o Helmholtz_inv.o Read_Covs.o InverseSymMat.o Read_Obs.o ModelObservations_linear.o  ModelObservations_adj.o DeAllocate_Obs.o Initialise_CVs.o Subtract_model_vars.o U_trans_inv.o Minus_CVs.o Add_pert_CVs.o Add_pert_model_vars.o Add_model_vars.o Mul_model_vars.o Mul_model_cons.o Div_model_cons.o Initialise_ObsSpec.o ABC_NL_ModelDriver_DA.o ModelObservations_ZeroPert.o Add_CVs.o Subtract_CVs.o Mul_CV_cons.o Write_one_field.o U_stddev_inv.o U_v_inv.o U_h_inv.o Initialise_CVT.o Initialise_aCVT.o ModelObservations.o ABC_NL_model.o Initialise_Averages.o Write_CV.o Write_Obs.o Energy.o Calc_geost.o Calc_hydro.o SetHorizLoc_alpha.o SetVertLoc_alpha.o SetHorizLoc_alpha_vdl.o SetVertLoc_alpha_vdl.o Fn_GC_corr.o Deallocate_dims.o Deallocate_model_vars.o Deallocate_CVs.o Deallocate_Averages.o Initialise_dims.o Deallocate_CVT.o Deallocate_aCVT.o Apply_alpha_model_vars.o
 	gfortran -o $@ $^ $(LinkOptsEig)
 
 Master_GradTest.out: Master_GradTest.o DefConsTypes.o SetOptions.o PenAndGrad.o Read_state_2d.o Initialise_model_vars.o Set_ht_dep_cons.o Write_state_2d.o Functions.o Boundaries.o Boundaries_adj.o Boundaries_CV.o Boundaries_CV_adj.o LinearBal_r.o LinearBal_r_adj.o Anbalw.o Anbalw_adj.o Helmholtz.o Helmholtz_adj.o HydroBal_b.o HydroBal_b_adj.o U_p.o U_p_adj.o U_v.o U_v_alpha.o U_v_adj.o U_v_alpha_adj.o U_h.o U_h_alpha.o U_h_adj.o U_h_alpha_adj.o U_trans.o U_trans_adj.o U_trans_alpha.o U_trans_alpha_adj.o fft_real2spec.o fft_spec2real.o U_stddev.o U_p_inv.o Helmholtz_inv.o Read_Covs.o InverseSymMat.o Read_Obs.o ModelObservations_linear.o  ModelObservations_adj.o DeAllocate_Obs.o Initialise_CVs.o Subtract_model_vars.o U_trans_inv.o Minus_CVs.o Add_pert_CVs.o Add_pert_model_vars.o Add_model_vars.o Mul_model_vars.o Mul_model_cons.o Div_model_cons.o Initialise_ObsSpec.o ABC_NL_ModelDriver_DA.o ModelObservations_ZeroPert.o Add_CVs.o Subtract_CVs.o Mul_CV_cons.o Write_one_field.o U_stddev_inv.o U_v_inv.o U_h_inv.o Initialise_CVT.o Initialise_aCVT.o ModelObservations.o ABC_NL_model.o Initialise_Averages.o Write_CV.o Write_Obs.o Energy.o Calc_geost.o Calc_hydro.o SetHorizLoc_alpha.o SetVertLoc_alpha.o Fn_GC_corr.o Deallocate_dims.o Deallocate_model_vars.o Deallocate_CVs.o Deallocate_Averages.o Initialise_dims.o Deallocate_CVT.o Deallocate_aCVT.o Apply_alpha_model_vars.o
@@ -228,6 +228,12 @@ U_v_alpha.o: U_v_alpha.f90 DefConsTypes.o
 U_v_alpha_adj.o: U_v_alpha_adj.f90 DefConsTypes.o
 	gfortran -c $< $(CompileOpts)
 
+U_v_alpha_vdl.o: U_v_alpha_vdl.f90 DefConsTypes.o
+	gfortran -c $< $(CompileOpts)
+
+U_v_alpha_vdl_adj.o: U_v_alpha_vdl_adj.f90 DefConsTypes.o
+	gfortran -c $< $(CompileOpts)
+
 U_h.o: U_h.f90 DefConsTypes.o
 	gfortran -c $< $(CompileOpts)
 
@@ -240,6 +246,12 @@ U_h_alpha.o: U_h_alpha.f90 DefConsTypes.o
 U_h_alpha_adj.o: U_h_alpha_adj.f90 DefConsTypes.o
 	gfortran -c $< $(CompileOpts)
 
+U_h_alpha_vdl.o: U_h_alpha_vdl.f90 DefConsTypes.o
+	gfortran -c $< $(CompileOpts)
+
+U_h_alpha_vdl_adj.o: U_h_alpha_vdl_adj.f90 DefConsTypes.o
+	gfortran -c $< $(CompileOpts)
+
 U_trans.o: U_trans.f90 DefConsTypes.o
 	gfortran -c $< $(CompileOpts)
 
@@ -250,6 +262,12 @@ U_trans_alpha.o: U_trans_alpha.f90 DefConsTypes.o
 	gfortran -c $< $(CompileOpts)
 
 U_trans_alpha_adj.o: U_trans_alpha_adj.f90 DefConsTypes.o
+	gfortran -c $< $(CompileOpts)
+
+U_trans_alpha_vdl.o: U_trans_alpha_vdl.f90 DefConsTypes.o
+	gfortran -c $< $(CompileOpts)
+
+U_trans_alpha_vdl_adj.o: U_trans_alpha_vdl_adj.f90 DefConsTypes.o
 	gfortran -c $< $(CompileOpts)
 
 Apply_alpha_model_vars.o: Apply_alpha_model_vars.f90 DefConsTypes.o
@@ -331,6 +349,12 @@ SetHorizLoc_alpha.o: SetHorizLoc_alpha.f90 DefConsTypes.o
 	gfortran -c $< $(CompileOpts)
 
 SetVertLoc_alpha.o: SetVertLoc_alpha.f90 DefConsTypes.o
+	gfortran -c $< $(CompileOpts)
+
+SetHorizLoc_alpha_vdl.o: SetHorizLoc_alpha_vdl.f90 DefConsTypes.o
+	gfortran -c $< $(CompileOpts)
+
+SetVertLoc_alpha_vdl.o: SetVertLoc_alpha_vdl.f90 DefConsTypes.o
 	gfortran -c $< $(CompileOpts)
 
 SetCustomHorizSpec.o: SetCustomHorizSpec.f90 DefConsTypes.o
@@ -427,6 +451,9 @@ Master_MakeEns.o: Master_MakeEns.f90 DefConsTypes.o
 	gfortran -c $< $(CompileOpts)
 
 PenAndGrad.o: PenAndGrad.f90 DefConsTypes.o
+	gfortran -c $< $(CompileOpts)
+
+PenAndGradVDL.o: PenAndGradVDL.f90 DefConsTypes.o
 	gfortran -c $< $(CompileOpts)
 
 U_trans_inv.o: U_trans_inv.f90 DefConsTypes.o

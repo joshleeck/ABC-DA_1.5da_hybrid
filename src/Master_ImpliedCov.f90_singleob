@@ -194,7 +194,7 @@ IF (ImplCov_npoints > 0) THEN
     ! Put delta function in the u field
     ! ---------------------------------
     PRINT *, '  Point', point, ' delta u'
-    Model_data1 % u(longindex(point), levindex(point)) = 1.0
+    Model_data1 % u(longindex(point), levindex(point)) = 1.0/Nacv
 
     IF (Var_dep_loc) THEN
       ALLOCATE (Work(1:Nvariable*nlongs,1:Nvariable*nlevs,1:Nacv))
@@ -209,13 +209,13 @@ IF (ImplCov_npoints > 0) THEN
         CALL Initialise_model_vars (EM_x_copy(n), .FALSE.)
         CALL Add_model_vars (EM_x_copy(n), EM_x(n), .FALSE.)
 
-        CALL Mul_model_vars (EM_x_copy(n), Model_data1, .TRUE.)
+        !CALL Mul_model_vars (EM_x_copy(n), Model_data1, .TRUE.)
 
         IF (Var_dep_loc) THEN ! Var_dep_loc deals with full control vector explicitly
-          CALL U_trans_alpha_vdl_adj (LS, Work(:,:,n), EM_x_copy(n), CVT, dims, L_alpha)
+          CALL U_trans_alpha_vdl_adj (LS, Work(:,:,n), Model_data1, CVT, dims, L_alpha)
 
         ELSE
-          CALL U_trans_alpha_adj (LS, CV_alpha_data(n), EM_x_copy(n), CVT, dims, L_alpha)
+          CALL U_trans_alpha_adj (LS, CV_alpha_data(n), Model_data1, CVT, dims, L_alpha)
           IF (VarLoc == 2) THEN
             ! Same alpha fields applied on each variable
             ! Extracting the column of the implied covariance associated with u at a point
@@ -225,7 +225,8 @@ IF (ImplCov_npoints > 0) THEN
             CV_alpha_data(n) % b (:,:) = CV_alpha_data(n) % u (:,:)
           ELSE IF (VarLoc == 3) THEN          
             ! Same alpha fields applied on u and v
-            ! Extracting the column of the implied covariance associated with u at a point
+            ! Extracting the column of the implied covariance associated with u at
+            ! a point
             CV_alpha_data(n) % v (:,:) = CV_alpha_data(n) % u (:,:)
           ELSE IF (VarLoc == 4) THEN
             ! Same alpha fields applied on each variable (only v excluded)
@@ -244,9 +245,6 @@ IF (ImplCov_npoints > 0) THEN
             ! Extracting the column of the implied covariance associated with u at a point
             CV_alpha_data(n) % r (:,:) = CV_alpha_data(n) % u (:,:)
             CV_alpha_data(n) % b (:,:) = CV_alpha_data(n) % u (:,:)
-          !ELSE IF (VarLoc == 7) THEN
-            ! Same alpha fields applied on each variable (only u excluded)
-            ! Extracting the column of the implied covariance associated with u at a point
           END IF
         END IF
 
@@ -280,7 +278,7 @@ IF (ImplCov_npoints > 0) THEN
         END IF
         ! Schur product multiplication between error modes and alpha control variables in model space
 
-        CALL Mul_model_vars(tmp_Uv(n), EM_x(n), .TRUE.)
+        !CALL Mul_model_vars(tmp_Uv(n), EM_x(n), .TRUE.)
         CALL Add_model_vars(dxe, tmp_Uv(n), .TRUE.)          
       END DO
       CALL Mul_model_cons(dxe, beta_e, .TRUE.)
@@ -305,7 +303,7 @@ IF (ImplCov_npoints > 0) THEN
     ! ---------------------------------
     PRINT *, '  Point', point, ' delta v'
     Model_data1 % u(longindex(point), levindex(point)) = 0.0
-    Model_data1 % v(longindex(point), levindex(point)) = 1.0
+    Model_data1 % v(longindex(point), levindex(point)) = 1.0/Nacv
 
     IF (Var_dep_loc) THEN
       Work(1:Nvariable*nlongs,1:Nvariable*nlevs,1:Nacv) = 0
@@ -319,13 +317,13 @@ IF (ImplCov_npoints > 0) THEN
         CALL Initialise_model_vars (EM_x_copy(n), .FALSE.)
         CALL Add_model_vars (EM_x_copy(n), EM_x(n), .FALSE.)
 
-        CALL Mul_model_vars (EM_x_copy(n), Model_data1, .TRUE.)
+        !CALL Mul_model_vars (EM_x_copy(n), Model_data1, .TRUE.)
 
         IF (Var_dep_loc) THEN ! Var_dep_loc deals with full control vector explicitly
-          CALL U_trans_alpha_vdl_adj (LS, Work(:,:,n), EM_x_copy(n), CVT, dims, L_alpha)
+          CALL U_trans_alpha_vdl_adj (LS, Work(:,:,n), Model_data1, CVT, dims, L_alpha)
 
         ELSE
-          CALL U_trans_alpha_adj (LS, CV_alpha_data(n), EM_x_copy(n), CVT, dims, L_alpha)
+          CALL U_trans_alpha_adj (LS, CV_alpha_data(n), Model_data1, CVT, dims, L_alpha)
           IF (VarLoc == 2) THEN
             ! Same alpha fields applied on each variable
             ! Extracting the column of the implied covariance associated with v at a point
@@ -349,13 +347,7 @@ IF (ImplCov_npoints > 0) THEN
             CV_alpha_data(n) % b (:,:) = CV_alpha_data(n) % v (:,:)
           !ELSE IF (VarLoc == 6) THEN
             ! Same alpha fields applied on each variable (only v and w excluded)
-            ! Extracting the column of the implied covariance associated with v at a point
-          ELSE IF (VarLoc == 7) THEN
-            ! Same alpha fields applied on each variable (only u excluded)
-            ! Extracting the column of the implied covariance associated with v at a point
-            CV_alpha_data(n) % w (:,:) = CV_alpha_data(n) % v (:,:)
-            CV_alpha_data(n) % r (:,:) = CV_alpha_data(n) % v (:,:)
-            CV_alpha_data(n) % b (:,:) = CV_alpha_data(n) % v (:,:)
+            ! Extracting the column of the implied covariance associated with v at a point 
           END IF
         END IF
    
@@ -387,7 +379,7 @@ IF (ImplCov_npoints > 0) THEN
         END IF
         ! Schur product multiplication between error modes and alpha control variables in model space
 
-        CALL Mul_model_vars(tmp_Uv(n), EM_x(n), .TRUE.)
+        !CALL Mul_model_vars(tmp_Uv(n), EM_x(n), .TRUE.)
         CALL Add_model_vars(dxe, tmp_Uv(n), .TRUE.)          
       END DO
       CALL Mul_model_cons(dxe, beta_e, .TRUE.)
@@ -413,7 +405,7 @@ IF (ImplCov_npoints > 0) THEN
     ! ---------------------------------
     PRINT *, '  Point', point, ' delta w'
     Model_data1 % v(longindex(point), levindex(point)) = 0.0
-    Model_data1 % w(longindex(point), levindex(point)) = 1.0
+    Model_data1 % w(longindex(point), levindex(point)) = 1.0/Nacv
 
     ! Operate with U transpose
     ! Hybrid implied covariances
@@ -423,13 +415,13 @@ IF (ImplCov_npoints > 0) THEN
         CALL Initialise_model_vars (EM_x_copy(n), .FALSE.)
         CALL Add_model_vars (EM_x_copy(n), EM_x(n), .FALSE.)
 
-        CALL Mul_model_vars (EM_x_copy(n), Model_data1, .TRUE.)
+        !CALL Mul_model_vars (EM_x_copy(n), Model_data1, .TRUE.)
 
         IF (Var_dep_loc) THEN ! Var_dep_loc deals with full control vector explicitly
-          CALL U_trans_alpha_vdl_adj (LS, Work(:,:,n), EM_x_copy(n), CVT, dims, L_alpha)
+          CALL U_trans_alpha_vdl_adj (LS, Work(:,:,n), Model_data1, CVT, dims, L_alpha)
 
         ELSE
-          CALL U_trans_alpha_adj (LS, CV_alpha_data(n), EM_x_copy(n), CVT, dims, L_alpha)
+          CALL U_trans_alpha_adj (LS, CV_alpha_data(n), Model_data1, CVT, dims, L_alpha)
           IF (VarLoc == 2) THEN
             ! Same alpha fields applied on each variable
             ! Extracting the column of the implied covariance associated with w at a point
@@ -458,12 +450,6 @@ IF (ImplCov_npoints > 0) THEN
           !ELSE IF (VarLoc == 6) THEN
             ! Same alpha fields applied on each variable (only v and w excluded)
             ! Extracting the column of the implied covariance associated with w at a point
-          ELSE IF (VarLoc == 7) THEN
-            ! Same alpha fields applied on each variable (only u excluded)
-            ! Extracting the column of the implied covariance associated with w at a point
-            CV_alpha_data(n) % v (:,:) = CV_alpha_data(n) % w (:,:)
-            CV_alpha_data(n) % r (:,:) = CV_alpha_data(n) % w (:,:)
-            CV_alpha_data(n) % b (:,:) = CV_alpha_data(n) % w (:,:)
           END IF
         END IF
 
@@ -495,7 +481,7 @@ IF (ImplCov_npoints > 0) THEN
         END IF
 
         ! Schur product multiplication between error modes and alpha control variables in model space
-        CALL Mul_model_vars(tmp_Uv(n), EM_x(n), .TRUE.)
+        !CALL Mul_model_vars(tmp_Uv(n), EM_x(n), .TRUE.)
         CALL Add_model_vars(dxe, tmp_Uv(n), .TRUE.)          
       END DO
       CALL Mul_model_cons(dxe, beta_e, .TRUE.)
@@ -521,7 +507,7 @@ IF (ImplCov_npoints > 0) THEN
     ! ---------------------------------
     PRINT *, '  Point', point, ' delta r'
     Model_data1 % w(longindex(point), levindex(point)) = 0.0
-    Model_data1 % r(longindex(point), levindex(point)) = 1.0
+    Model_data1 % r(longindex(point), levindex(point)) = 1.0/Nacv
 
     ! Operate with U transpose
     ! Hybrid implied covariances
@@ -531,13 +517,13 @@ IF (ImplCov_npoints > 0) THEN
         CALL Initialise_model_vars (EM_x_copy(n), .FALSE.)
         CALL Add_model_vars (EM_x_copy(n), EM_x(n), .FALSE.)
 
-        CALL Mul_model_vars (EM_x_copy(n), Model_data1, .TRUE.)
+        !CALL Mul_model_vars (EM_x_copy(n), Model_data1, .TRUE.)
 
         IF (Var_dep_loc) THEN ! Var_dep_loc deals with full control vector explicitly
-          CALL U_trans_alpha_vdl_adj (LS, Work(:,:,n), EM_x_copy(n), CVT, dims, L_alpha)
+          CALL U_trans_alpha_vdl_adj (LS, Work(:,:,n), Model_data1, CVT, dims, L_alpha)
 
         ELSE
-          CALL U_trans_alpha_adj (LS, CV_alpha_data(n), EM_x_copy(n), CVT, dims, L_alpha)
+          CALL U_trans_alpha_adj (LS, CV_alpha_data(n), Model_data1, CVT, dims, L_alpha)
           IF (VarLoc == 2) THEN
             ! Same alpha fields applied on each variable
             ! Extracting the column of the implied covariance associated with r at a point
@@ -563,12 +549,6 @@ IF (ImplCov_npoints > 0) THEN
             ! Same alpha fields applied on each variable (only v and w excluded)
             ! Extracting the column of the implied covariance associated with r at a point
             CV_alpha_data(n) % u (:,:) = CV_alpha_data(n) % r (:,:)
-            CV_alpha_data(n) % b (:,:) = CV_alpha_data(n) % r (:,:)
-          ELSE IF (VarLoc == 7) THEN
-            ! Same alpha fields applied on each variable (only u excluded)
-            ! Extracting the column of the implied covariance associated with r at a point
-            CV_alpha_data(n) % v (:,:) = CV_alpha_data(n) % r (:,:)
-            CV_alpha_data(n) % w (:,:) = CV_alpha_data(n) % r (:,:)
             CV_alpha_data(n) % b (:,:) = CV_alpha_data(n) % r (:,:)
           END IF
         END IF
@@ -603,7 +583,7 @@ IF (ImplCov_npoints > 0) THEN
         END IF
 
         ! Schur product multiplication between error modes and alpha control variables in model space 
-        CALL Mul_model_vars(tmp_Uv(n), EM_x(n), .TRUE.)
+        !CALL Mul_model_vars(tmp_Uv(n), EM_x(n), .TRUE.)
         CALL Add_model_vars(dxe, tmp_Uv(n), .TRUE.)          
       END DO
       CALL Mul_model_cons(dxe, beta_e, .TRUE.)
@@ -629,7 +609,7 @@ IF (ImplCov_npoints > 0) THEN
     ! ---------------------------------
     PRINT *, '  Point', point, ' delta b'
     Model_data1 % r(longindex(point), levindex(point)) = 0.0
-    Model_data1 % b(longindex(point), levindex(point)) = 1.0
+    Model_data1 % b(longindex(point), levindex(point)) = 1.0/Nacv
 
     ! Operate with U transpose
     ! Hybrid implied covariances
@@ -639,13 +619,13 @@ IF (ImplCov_npoints > 0) THEN
         CALL Initialise_model_vars (EM_x_copy(n), .FALSE.)
         CALL Add_model_vars (EM_x_copy(n), EM_x(n), .FALSE.)
 
-        CALL Mul_model_vars (EM_x_copy(n), Model_data1, .TRUE.)
+        !CALL Mul_model_vars (EM_x_copy(n), Model_data1, .TRUE.)
         
         IF (Var_dep_loc) THEN ! Var_dep_loc deals with full control vector explicitly
-          CALL U_trans_alpha_vdl_adj (LS, Work(:,:,n), EM_x_copy(n), CVT, dims, L_alpha)
+          CALL U_trans_alpha_vdl_adj (LS, Work(:,:,n), Model_data1, CVT, dims, L_alpha)
 
         ELSE
-          CALL U_trans_alpha_adj (LS, CV_alpha_data(n), EM_x_copy(n), CVT, dims, L_alpha)
+          CALL U_trans_alpha_adj (LS, CV_alpha_data(n), Model_data1, CVT, dims, L_alpha)
           IF (VarLoc == 2) THEN
             ! Same alpha fields applied on each variable
             ! Extracting the column of the implied covariance associated with b at a point
@@ -675,12 +655,6 @@ IF (ImplCov_npoints > 0) THEN
             ! Extracting the column of the implied covariance associated with b at a point
             CV_alpha_data(n) % u (:,:) = CV_alpha_data(n) % b (:,:)
             CV_alpha_data(n) % r (:,:) = CV_alpha_data(n) % b (:,:) 
-          ELSE IF (VarLoc == 7) THEN
-            ! Same alpha fields applied on each variable (only u excluded)
-            ! Extracting the column of the implied covariance associated with b at a point
-            CV_alpha_data(n) % v (:,:) = CV_alpha_data(n) % b (:,:)
-            CV_alpha_data(n) % w (:,:) = CV_alpha_data(n) % b (:,:)
-            CV_alpha_data(n) % r (:,:) = CV_alpha_data(n) % b (:,:)
           END IF
         END IF
 
@@ -713,7 +687,7 @@ IF (ImplCov_npoints > 0) THEN
         END IF
 
         ! Schur product multiplication between error modes and alpha control variables in model space
-        CALL Mul_model_vars(tmp_Uv(n), EM_x(n), .TRUE.)
+        !CALL Mul_model_vars(tmp_Uv(n), EM_x(n), .TRUE.)
         CALL Add_model_vars(dxe, tmp_Uv(n), .TRUE.)          
       END DO
       CALL Mul_model_cons(dxe, beta_e, .TRUE.)

@@ -3,8 +3,8 @@ SUBROUTINE Initialise_aCVT (aCVT)
 ! Initialise alpha control variable transform structure
 
 USE DefConsTypes, ONLY :     &
-    aCVT_type,                &
-    nlongs, nlevs
+    aCVT_type,               &
+    nlongs, nlevs, Var_dep_loc, Nvariable
 
 IMPLICIT NONE
 
@@ -61,5 +61,21 @@ TYPE(aCVT_type), INTENT(INOUT)   :: aCVT
   aCVT % HorizEV3(1:nlongs, 1:nlevs)           = 0.0
   aCVT % HorizEV4(1:nlongs, 1:nlevs)           = 0.0
   aCVT % HorizEV5(1:nlongs, 1:nlevs)           = 0.0
+
+  ! These are for the full concatenated components when VDL (see DefConsTypes.f90)
+  IF (Var_dep_loc) THEN
+    IF (.NOT.ALLOCATED(aCVT % HorizModeFull)) ALLOCATE (aCVT % HorizModeFull(1:Nvariable*nlongs, 1:Nvariable*nlongs, 1:nlevs))
+    aCVT % HorizModeFull(1:Nvariable*nlongs, 1:Nvariable*nlongs, 1:nlevs) = 0.0
+    IF (.NOT.ALLOCATED(aCVT % HorizEVFull)) ALLOCATE (aCVT % HorizEVFull(1:Nvariable*nlongs, 1:nlevs))
+    aCVT % HorizEVFull(1:Nvariable*nlongs, 1:nlevs)           = 0.0
+    IF (.NOT.ALLOCATED(aCVT % L_fh)) ALLOCATE (aCVT % L_fh(1:Nvariable*nlongs, 1:Nvariable*nlongs))
+    aCVT % L_fh(1:Nvariable*nlongs, 1:Nvariable*nlongs)           = 0.0
+    IF (.NOT.ALLOCATED(aCVT % VertModeFull)) ALLOCATE (aCVT % VertModeFull(1:Nvariable*nlevs, 1:Nvariable*nlevs, 1:nlongs))
+    aCVT % VertModeFull(1:Nvariable*nlevs, 1:Nvariable*nlevs, 1:nlongs) = 0.0
+    IF (.NOT.ALLOCATED(aCVT % VertEVFull)) ALLOCATE (aCVT % VertEVFull(1:Nvariable*nlevs, 1:nlongs))
+    aCVT % VertEVFull(1:Nvariable*nlevs, 1:nlongs)           = 0.0
+    IF (.NOT.ALLOCATED(aCVT % L_fv)) ALLOCATE (aCVT % L_fv(1:Nvariable*nlevs, 1:Nvariable*nlevs))
+    aCVT % L_fv(1:Nvariable*nlevs, 1:Nvariable*nlevs)           = 0.0
+  END IF
 
 END SUBROUTINE Initialise_aCVT

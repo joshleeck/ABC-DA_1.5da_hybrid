@@ -356,7 +356,7 @@ outerloop: DO k = 1, N_outerloops + 1
   PRINT *, '===== Starting initial PenAndGrad routine'
   
   IF (Var_dep_loc) THEN
-    CALL PenAndGradVDL (VarType, DAtimesteps, timesteps, dims, t0, Nacv,                   &
+     CALL PenAndGradVDL (VarType, DAtimesteps, timesteps, dims, t0, Nacv,                   &
                    Observations, dchi0_i, dchi0zero, dchiB0, dchiB0zero,              &
                    CVT, LSfc, Jb, Jo, Je, J, .TRUE., r_i, r_i_alpha_vdl,                  &
                    .TRUE., ForceNLmodel, datadirAnal, k, 0, chi0_i_alpha_vdl, Use_EOTD, EM_x, L_alpha)
@@ -378,6 +378,7 @@ outerloop: DO k = 1, N_outerloops + 1
 
     ! CALL Write_CV ('r_0_cv.nc', r_i, 14, CVT, dims % longs_v(1:nlongs), dims % full_levs(1:nlevs))
 
+
     ! The residual is minus this
     CALL Minus_CVs (r_i)
     magnitude2_r_i = REAL(InnerProdControlSpace(r_i, r_i, ComplexSpace=.TRUE.))
@@ -388,6 +389,11 @@ outerloop: DO k = 1, N_outerloops + 1
 
         IF (Var_dep_loc) THEN
           r_i_alpha_vdl(:,:,n) = r_i_alpha_vdl(:,:,n) * m1
+        ELSE
+          CALL Mul_model_cons (r_i_alpha(n), m1, .TRUE.)
+        END IF
+
+        IF (Var_dep_loc) THEN
           ! Inner product of control vector which has Nvariable*Nlongs*Nvariable*Nlevs elements
           magnitude2_r_i_alpha = SUM(r_i_alpha_vdl(:,:,n)*r_i_alpha_vdl(:,:,n))
           magnitude2_r_i = magnitude2_r_i + magnitude2_r_i_alpha
@@ -395,7 +401,6 @@ outerloop: DO k = 1, N_outerloops + 1
         ELSE!----------------------------------------------------------------------
             ! This portion is used when localisation matrix is dealt with blockwise
             !----------------------------------------------------------------------
-          CALL Mul_model_cons (r_i_alpha(n), m1, .TRUE.)
 
           ! Without inter-variable localisation, we treat use the same alpha field for each model variable
           ! or certain variables, so need to account for any repeated inner product computations
@@ -478,24 +483,6 @@ outerloop: DO k = 1, N_outerloops + 1
             r_i_alpha_copy(n) % b(0:nlongs+1,0:nlevs+1) = 0
             magnitude2_r_i_alpha = InnerProdModelSpace(r_i_alpha_copy(n), r_i_alpha_copy(n))
             magnitude2_r_i = magnitude2_r_i + magnitude2_r_i_alpha !No factor of 2 required because no cross-covariances
-
-          ELSE IF (VarLoc == 7) THEN ! Retain all inter-variable covariances except with u
-            ! Add components associated with all other variables
-            CALL Initialise_model_vars (r_i_alpha_copy(n), .FALSE.)
-            CALL Add_model_vars (r_i_alpha_copy(n), r_i_alpha(n), .TRUE.)
-            r_i_alpha_copy(n) % u(0:nlongs+1,0:nlevs+1) = 0
-            magnitude2_r_i_alpha = InnerProdModelSpace(r_i_alpha_copy(n), r_i_alpha_copy(n))
-            magnitude2_r_i = magnitude2_r_i + magnitude2_r_i_alpha/4.0
-
-            ! Add components associated with u
-            CALL Initialise_model_vars (r_i_alpha_copy(n), .FALSE.)
-            CALL Add_model_vars (r_i_alpha_copy(n), r_i_alpha(n), .TRUE.)
-            r_i_alpha_copy(n) % v(0:nlongs+1,0:nlevs+1) = 0
-            r_i_alpha_copy(n) % w(0:nlongs+1,0:nlevs+1) = 0
-            r_i_alpha_copy(n) % r(0:nlongs+1,0:nlevs+1) = 0
-            r_i_alpha_copy(n) % b(0:nlongs+1,0:nlevs+1) = 0
-            magnitude2_r_i_alpha = InnerProdModelSpace(r_i_alpha_copy(n), r_i_alpha_copy(n))
-            magnitude2_r_i = magnitude2_r_i + magnitude2_r_i_alpha
  
           END IF
         END IF! .NOT. Var_dep_loc
@@ -726,26 +713,6 @@ outerloop: DO k = 1, N_outerloops + 1
               magnitude2_r_ip1_alpha = InnerProdModelSpace(r_ip1_alpha_copy(n), r_ip1_alpha_copy(n))
               magnitude2_r_ip1 = magnitude2_r_ip1 + magnitude2_r_ip1_alpha !No factor of 2 required because no cross-covariances
 
-
-            ELSE IF (VarLoc == 7) THEN ! Retain all inter-variable covariances except with u
-              ! Add components associated with all other variables
-              CALL Initialise_model_vars (r_ip1_alpha_copy(n), .FALSE.)
-              CALL Add_model_vars (r_ip1_alpha_copy(n), r_ip1_alpha(n), .TRUE.)
-              r_ip1_alpha_copy(n) % u(0:nlongs+1,0:nlevs+1) = 0
-              magnitude2_r_ip1_alpha = InnerProdModelSpace(r_ip1_alpha_copy(n), r_ip1_alpha_copy(n))
-              magnitude2_r_ip1 = magnitude2_r_ip1 + magnitude2_r_ip1_alpha/4.0
-
-              ! Add components associated with u
-              CALL Initialise_model_vars (r_ip1_alpha_copy(n), .FALSE.)
-              CALL Add_model_vars (r_ip1_alpha_copy(n), r_ip1_alpha(n), .TRUE.)
-              r_ip1_alpha_copy(n) % v(0:nlongs+1,0:nlevs+1) = 0
-              r_ip1_alpha_copy(n) % w(0:nlongs+1,0:nlevs+1) = 0
-              r_ip1_alpha_copy(n) % r(0:nlongs+1,0:nlevs+1) = 0
-              r_ip1_alpha_copy(n) % b(0:nlongs+1,0:nlevs+1) = 0
-              magnitude2_r_ip1_alpha = InnerProdModelSpace(r_ip1_alpha_copy(n), r_ip1_alpha_copy(n))
-              magnitude2_r_ip1 = magnitude2_r_ip1 + magnitude2_r_ip1_alpha
-
-
             END IF
           END IF! .NOT. Var_dep_loc
         END DO
@@ -794,7 +761,6 @@ outerloop: DO k = 1, N_outerloops + 1
           p_i_alpha      = p_ip1_alpha
           chi0_i_alpha   = chi0_ip1_alpha
         END IF
-
         IF (i > N_innerloops_max) THEN
           EXIT innerloop
         END IF
@@ -827,7 +793,7 @@ outerloop: DO k = 1, N_outerloops + 1
           CALL U_trans_alpha (LSfc(0), chi0_ip1_alpha(n), tmp_Uv(n), CVT, dims, L_alpha)
         END IF
         ! Schur product multiplication between error modes and alpha control variables in model space
-        CALL Mul_model_vars(tmp_Uv(n), EM_x(n), .TRUE.)
+        !CALL Mul_model_vars(tmp_Uv(n), EM_x(n), .TRUE.)
         CALL Add_model_vars(dxe0, tmp_Uv(n), .TRUE.)
       END DO
 

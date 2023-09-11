@@ -29,22 +29,92 @@ IF (VarLoc == 2) THEN
   state1 % b(0:nlongs+1,0:nlevs+1)           = state2 % u(0:nlongs+1,0:nlevs+1) + state2 % v(0:nlongs+1,0:nlevs+1) + &
                                                state2 % w(0:nlongs+1,0:nlevs+1) + state2 % r(0:nlongs+1,0:nlevs+1) + &
                                                state2 % b(0:nlongs+1,0:nlevs+1)
+
+ELSE IF (VarLoc == 3) THEN
+  state1 % u(0:nlongs+1,0:nlevs+1)           = state2 % u(0:nlongs+1,0:nlevs+1) + state2 % v(0:nlongs+1,0:nlevs+1)
+
+  state1 % v(0:nlongs+1,0:nlevs+1)           = state2 % u(0:nlongs+1,0:nlevs+1) + state2 % v(0:nlongs+1,0:nlevs+1)
+
+  state1 % w(0:nlongs+1,0:nlevs+1)           = state2 % w(0:nlongs+1,0:nlevs+1) + state2 % r(0:nlongs+1,0:nlevs+1) + &
+                                               state2 % b(0:nlongs+1,0:nlevs+1)
+
+  state1 % r(0:nlongs+1,0:nlevs+1)           = state2 % w(0:nlongs+1,0:nlevs+1) + state2 % r(0:nlongs+1,0:nlevs+1) + &
+                                               state2 % b(0:nlongs+1,0:nlevs+1)
+
+  state1 % b(0:nlongs+1,0:nlevs+1)           = state2 % w(0:nlongs+1,0:nlevs+1) + state2 % r(0:nlongs+1,0:nlevs+1) + &
+                                               state2 % b(0:nlongs+1,0:nlevs+1)
+
 ELSE IF (VarLoc == 4) THEN
   state1 % u(0:nlongs+1,0:nlevs+1)           = state2 % u(0:nlongs+1,0:nlevs+1) + &
                                                state2 % w(0:nlongs+1,0:nlevs+1) + state2 % r(0:nlongs+1,0:nlevs+1) + &
                                                state2 % b(0:nlongs+1,0:nlevs+1)
-  state1 % v(0:nlongs+1,0:nlevs+1)           = state2 % v(0:nlongs+1,0:nlevs+1)
-                                              
+
+  state1 % v(0:nlongs+1,0:nlevs+1)           = state2 % v(0:nlongs+1,0:nlevs+1)                                              
 
   state1 % w(0:nlongs+1,0:nlevs+1)           = state2 % u(0:nlongs+1,0:nlevs+1) + &
                                                state2 % w(0:nlongs+1,0:nlevs+1) + state2 % r(0:nlongs+1,0:nlevs+1) + &
                                                state2 % b(0:nlongs+1,0:nlevs+1)
+
   state1 % r(0:nlongs+1,0:nlevs+1)           = state2 % u(0:nlongs+1,0:nlevs+1) + &
                                                state2 % w(0:nlongs+1,0:nlevs+1) + state2 % r(0:nlongs+1,0:nlevs+1) + &
                                                state2 % b(0:nlongs+1,0:nlevs+1)
+
   state1 % b(0:nlongs+1,0:nlevs+1)           = state2 % u(0:nlongs+1,0:nlevs+1) + &
                                                state2 % w(0:nlongs+1,0:nlevs+1) + state2 % r(0:nlongs+1,0:nlevs+1) + &
                                                state2 % b(0:nlongs+1,0:nlevs+1)
+
+ELSE IF (VarLoc == 5) THEN
+  state1 % u(0:nlongs+1,0:nlevs+1)           = state2 % u(0:nlongs+1,0:nlevs+1) + &
+                                               state2 % v(0:nlongs+1,0:nlevs+1) + state2 % w(0:nlongs+1,0:nlevs+1) + &
+                                               state2 % b(0:nlongs+1,0:nlevs+1)
+
+  state1 % v(0:nlongs+1,0:nlevs+1)           = state2 % u(0:nlongs+1,0:nlevs+1) + &
+                                               state2 % v(0:nlongs+1,0:nlevs+1) + state2 % w(0:nlongs+1,0:nlevs+1) + &
+                                               state2 % b(0:nlongs+1,0:nlevs+1)
+
+  state1 % w(0:nlongs+1,0:nlevs+1)           = state2 % u(0:nlongs+1,0:nlevs+1) + &
+                                               state2 % v(0:nlongs+1,0:nlevs+1) + state2 % w(0:nlongs+1,0:nlevs+1) + &
+                                               state2 % b(0:nlongs+1,0:nlevs+1)
+
+  state1 % r(0:nlongs+1,0:nlevs+1)           = state2 % r(0:nlongs+1,0:nlevs+1)
+
+  state1 % b(0:nlongs+1,0:nlevs+1)           = state2 % u(0:nlongs+1,0:nlevs+1) + &
+                                               state2 % v(0:nlongs+1,0:nlevs+1) + state2 % w(0:nlongs+1,0:nlevs+1) + &
+                                               state2 % b(0:nlongs+1,0:nlevs+1)
+
+
+ELSE IF (VarLoc == 6) THEN
+  state1 % u(0:nlongs+1,0:nlevs+1)           = state2 % u(0:nlongs+1,0:nlevs+1) + &
+                                               state2 % r(0:nlongs+1,0:nlevs+1) + &
+                                               state2 % b(0:nlongs+1,0:nlevs+1)
+
+  state1 % v(0:nlongs+1,0:nlevs+1)           = state2 % v(0:nlongs+1,0:nlevs+1)
+ 
+  state1 % w(0:nlongs+1,0:nlevs+1)           = state2 % w(0:nlongs+1,0:nlevs+1) 
+
+  state1 % r(0:nlongs+1,0:nlevs+1)           = state2 % u(0:nlongs+1,0:nlevs+1) + &
+                                               state2 % r(0:nlongs+1,0:nlevs+1) + &
+                                               state2 % b(0:nlongs+1,0:nlevs+1)
+  state1 % b(0:nlongs+1,0:nlevs+1)           = state2 % u(0:nlongs+1,0:nlevs+1) + &
+                                               state2 % r(0:nlongs+1,0:nlevs+1) + &
+                                               state2 % b(0:nlongs+1,0:nlevs+1)
+
+ELSE IF (VarLoc == 7) THEN
+  state1 % u(0:nlongs+1,0:nlevs+1)           = state2 % u(0:nlongs+1,0:nlevs+1) 
+
+  state1 % v(0:nlongs+1,0:nlevs+1)           = state2 % v(0:nlongs+1,0:nlevs+1) + state2 % w(0:nlongs+1,0:nlevs+1) + &
+                                               state2 % r(0:nlongs+1,0:nlevs+1) + state2 % b(0:nlongs+1,0:nlevs+1)
+
+  state1 % w(0:nlongs+1,0:nlevs+1)           = state2 % v(0:nlongs+1,0:nlevs+1) + state2 % w(0:nlongs+1,0:nlevs+1) + &
+                                               state2 % r(0:nlongs+1,0:nlevs+1) + state2 % b(0:nlongs+1,0:nlevs+1)
+
+  state1 % r(0:nlongs+1,0:nlevs+1)           = state2 % v(0:nlongs+1,0:nlevs+1) + state2 % w(0:nlongs+1,0:nlevs+1) + &
+                                               state2 % r(0:nlongs+1,0:nlevs+1) + state2 % b(0:nlongs+1,0:nlevs+1)
+
+  state1 % b(0:nlongs+1,0:nlevs+1)           = state2 % v(0:nlongs+1,0:nlevs+1) + state2 % w(0:nlongs+1,0:nlevs+1) + &
+                                               state2 % r(0:nlongs+1,0:nlevs+1) + state2 % b(0:nlongs+1,0:nlevs+1)
+
+
 END IF
 
 END SUBROUTINE Apply_alpha_model_vars

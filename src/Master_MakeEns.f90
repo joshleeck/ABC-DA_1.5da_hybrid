@@ -39,7 +39,9 @@ USE DefConsTypes, ONLY :         &
     nlongs,                      &
     nlevs,                       &
     epsilon_diagnostic,          &
-    epsilon_file
+    epsilon_file,                &
+    custom_pert_size,            &
+    reprod
 
 
 IMPLICIT NONE
@@ -75,6 +77,12 @@ REAL(ZREAL8), ALLOCATABLE   :: hx(:,:), Yb_pert(:,:),  R(:,:), YbYbT(:,:), Gamma
 REAL(ZREAL8), ALLOCATABLE   :: Yb_mean(:), IPIV(:), Yb_pert_inf(:,:)
 
 CHARACTER(LEN=320)          :: ABC_init0_file, ABC_anal0_file, ABC_bg0_file, Obs_filename
+
+! ----- variables for portable seed setting -----
+INTEGER :: i_seed
+INTEGER, DIMENSION(:), ALLOCATABLE :: a_seed
+INTEGER, DIMENSION(1:8) :: dt_seed
+! ----- end of variables for seed setting -----
 
 
 PRINT*, '*************************************************************************'
@@ -369,6 +377,20 @@ ELSE IF (Ens_opt == 3) THEN
 
   PRINT *, 'Number of states in RF_file: ', ntimes
 
+  ! If reproducible, don't call RANDOM_SEED
+  IF (.NOT. reprod) THEN
+    PRINT *, 'Re-running the program will produce different random field perturbations'
+    ! ----- Set up random seed portably -----
+    CALL RANDOM_SEED(size=i_seed)
+    ALLOCATE(a_seed(1:i_seed))
+    CALL RANDOM_SEED(get=a_seed)
+    CALL DATE_AND_TIME(values=dt_seed)
+    a_seed(i_seed)=dt_seed(8); a_seed(1)=dt_seed(8)*dt_seed(7)*dt_seed(6)
+    CALL RANDOM_SEED(put=a_seed)
+    DEALLOCATE(a_seed)
+    ! ----- Done setting up random seed -----
+  END IF
+
   ! Get ensemble pertubations based on difference between 2 random states
   magnitude2_bg = 0
   DO n = 1, NEnsMems
@@ -409,16 +431,27 @@ ELSE IF (Ens_opt == 3) THEN
 
   END DO
 
-  ! Find average of inner product/energy norm from perturbations
+  ! Find average inner product norm (or average total energy norm) from perturbations
   total = 1.0*NEnsMems
-  epsilon_init = magnitude2_bg/total
+  epsilon_init = SQRT(magnitude2_bg/total)
 
-  ! Scale pertubations size to average of inner product norm (or energy norm)
+  IF (custom_pert_size) THEN
+    ! Scale total energy norm constant based on input file
+    ! Overwrite epsilon_init with constant from input file
+    PRINT *, 'custom_pert_size is .true. so mean total energy norm is replaced by prescribed value ...'
+    input_filename = TRIM(epsilon_file)
+    OPEN (9, file=input_filename)
+    READ (9,*) epsilon_init
+    CLOSE (9)
+  END IF
+
+  ! Scale pertubations size to average inner product norm (or norm of average energy)
   DO n = 1, NEnsMems
     !magnitude2_bg = InnerProdModelSpace(diff_bg_pert(n), diff_bg_pert(n))
     magnitude2_bg = diff_bg_pert(n) % Total_Energy
 
-    c_star = SQRT(epsilon_init/magnitude2_bg)
+    ! Square root is taken above, unlike in EBV method, so no need square root on epsilon_init here
+    c_star = epsilon_init/SQRT(magnitude2_bg)
     CALL Mul_model_cons (diff_bg_pert(n), c_star, .TRUE.)
   END DO
 
@@ -429,6 +462,7 @@ ELSE IF (Ens_opt == 3) THEN
   ! true background error by factor 2 for state minus state estimates of background error (Var[X-Y] = Var[X] + Var[Y])
   fac = 1/SQRT(2.0)
   c = c*fac
+
 
 ! ===================================
 ! --- ENSEMBLE SQUARE ROOT FILTER ---

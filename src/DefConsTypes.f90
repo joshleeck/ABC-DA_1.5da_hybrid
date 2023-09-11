@@ -21,9 +21,10 @@ INTEGER, PARAMETER        :: ZREAL8         = SELECTED_REAL_KIND(15,307)
 INTEGER, PARAMETER        :: wp             = KIND(1.0D0)
 INTEGER, PARAMETER        :: Nensmax        = 50
 INTEGER, PARAMETER        :: NNMCmax        = 50
-INTEGER, PARAMETER        :: Nlatsmax       = 512
+INTEGER, PARAMETER        :: Nlatsmax       = 999
 INTEGER, PARAMETER        :: Npointsmax     = 24
 INTEGER, PARAMETER        :: maxbatches     = 100
+INTEGER, PARAMETER        :: Nvariable      = 5
 REAL(ZREAL8)              :: ConditionFudge = 0.000000001
 REAL(ZREAL8)              :: small          = 0.00000000001
 REAL(ZREAL8)              :: zero           = 0.0
@@ -269,6 +270,16 @@ TYPE aCVT_type
   REAL(ZREAL8), ALLOCATABLE :: HorizEV4(:,:)
   REAL(ZREAL8), ALLOCATABLE :: HorizEV5(:,:)
 
+  ! These are for brute force full localisation matrix decomposition for
+  ! variable-dependent localisation
+  REAL(ZREAL8), ALLOCATABLE :: HorizModeFull(:,:,:)
+  REAL(ZREAL8), ALLOCATABLE :: HorizEVFull(:,:)
+  REAL(ZREAL8), ALLOCATABLE :: L_fh(:,:)
+  REAL(ZREAL8), ALLOCATABLE :: VertModeFull(:,:,:)
+  REAL(ZREAL8), ALLOCATABLE :: VertEVFull(:,:)
+  REAL(ZREAL8), ALLOCATABLE :: L_fv(:,:)
+
+
 END TYPE aCVT_type
 
 
@@ -485,12 +496,23 @@ REAL(ZREAL8)              :: minus_mu                     ! Negative of above
 REAL(ZREAL8)              :: crit_inner = 0.01            ! Stopping criterion for inner loop
 REAL(ZREAL8)              :: Cov_weightE = 50.0           ! Percentage weighting of EOTD-derived covariance
 REAL(ZREAL8)              :: Cov_weightC = 50.0           ! Percentage weighting of climatological covariance
-INTEGER                   :: VarLoc = 1                   ! 1 = Full inter-variable localisation (i.e. use different control fields for each variable)
+INTEGER                   :: VarLoc = 2                   ! 1 = Full inter-variable localisation (i.e. use different control fields for each variable)
                                                           ! 2 = Retain all inter-variable covariances (i.e. no inter-variable localisation)
-                                                          ! 3 = Retain only covariances between (a) u,v and (b) w,r_prime,b_prime (not yet implemented)
+                                                          ! 3 = Retain only covariances between (a) u,v and (b) w,r,b
                                                           ! 4 = Retain all inter-variable covariances except with v
-REAL(ZREAL8)              :: hScale_alpha = 10000.0       ! Horizontal length-scale used in localisation of alpha control variables (in m)
-REAL(ZREAL8)              :: vScale_alpha = 3000.0        ! Vertical length-scale used in localisation of alpha control variables (in m)
+                                                          ! 5 = Retain all inter-variable covariances except with r
+                                                          ! 6 = Retain all inter-variable covariances except with v and w
+                                                          ! 7 = Retain all inter-variable covariances except with u
+LOGICAL                   :: Var_dep_loc = .FALSE.        ! If true, additional cross-variable localisation matrices are included in
+                                                          ! alpha control variable transform. The cross-variable localisation length-scale is
+                                                          ! the average of the localisation length-scale for the two variables.
+REAL(ZREAL8), DIMENSION(Nvariable):: hScale_alpha = (/50000.0, 50000.0, 50000.0, 50000.0, 50000.0/)
+                                                          ! Horizontal length-scale used in localisation of alpha control variables (in m)
+                                                          ! If Var_dep_loc = .TRUE., 5 different length-scales can be set 
+                                                          ! i.e. hScale_alpha(:) = 100.0, 200.0, 300.0, 400.0, 500.0 in namelist
+REAL(ZREAL8), DIMENSION(Nvariable):: vScale_alpha = (/5000.0, 5000.0, 5000.0, 5000.0, 5000.0/)
+                                                          ! Vertical length-scale used in localisation of alpha control variables (in m)
+                                                          ! Same as for hScale_alpha
 
 ! Variables to do with FFTs
 ! -------------------------
@@ -525,7 +547,9 @@ INTEGER                   :: Ens_opt = 1                  ! 1 = bred vector with
                                                           ! 3 = random field (RF) following Magnusson et al. (2009)
                                                           ! 4 = ensemble square root filter adapted from Sakov and Oke (2009)
 CHARACTER(LEN=256)        :: epsilon_diagnostic=''        ! Diagnostic file which contain the average norm for ensemble bred vector method
-CHARACTER(LEN=256)        :: epsilon_file=''              ! Directory and file which contains the total norm to scale for ensemble bred vector method
+CHARACTER(LEN=256)        :: epsilon_file=''              ! Directory and file which contains the norm to scale for Ens_opt=2 and 3 (if custom_pert_size)
+LOGICAL                   :: custom_pert_size=.FALSE.     ! Used only in RF method, if custom norm value is to be used.
+LOGICAL                   :: reprod=.TRUE.                ! Generate new set of RF perturbations each run.
 REAL(ZREAL8)              :: RF_tune = 1.0                ! Tuning factor for RF method
 REAL(ZREAL8)              :: EBV_tune = 1.0               ! Tuning factor for ensemble bred vector method
 REAL(ZREAL8)              :: EnSRF_tune = 0.5             ! Tuning factor for ensemble square root filter method, default 0.5 following Sakov and Oke (2009)
@@ -552,7 +576,7 @@ NAMELIST / UserOptions /                                                        
 ! --- DA ---
   datadirCVT, CVT_file, Hybrid_opt, Vartype, datadirAnal, anal_file, analinc_file, &
   N_outerloops, N_innerloops_max, crit_inner, Cov_weightE, Cov_weightC,            &
-  VarLoc, hScale_alpha, vScale_alpha, datadirEM,                                   &
+  VarLoc, Var_dep_loc, hScale_alpha, vScale_alpha, datadirEM,                      &
 ! --- Linear analysis ---
   datadirLinearAnal,                                                               &
 ! --- Calibration, CVT, etc.
@@ -570,8 +594,9 @@ NAMELIST / UserOptions /                                                        
   ABC_init_ctrl_file, ABC_bg_ctrl_file, ABC_anal_ctrl_file, datadirABC_init,       &
   datadirABC_anal, datadirABC_bg, datadirABCEns_init, datadirABCEns_bg,            &
   datadirABCEns_anal, fullpath_Obs, Ens_opt, epsilon_diagnostic, epsilon_file,     &
-  RF_tune, EBV_tune, EnSRF_tune, EnSRF_inf, RTTP_tune, RF_file, uncorr_thresh
-
+  custom_pert_size, reprod, RF_tune, EBV_tune, EnSRF_tune, EnSRF_inf, RTTP_tune, RF_file,  &
+  uncorr_thresh
 
 
 END MODULE DefConsTypes
+

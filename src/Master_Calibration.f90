@@ -363,7 +363,7 @@ CASE (3)
             ! Read-in a perturbation state found in stage 2
             WRITE (ABCfile, '(A,A,I0.3,A,I0.3,A)') TRIM(datadirABCperts), '/PertABC_Ens', ens, '_Item', item, '.nc'
             PRINT *, 'Reading file ', TRIM(ABCfile)
-            CALL Read_state_2d (ABCfile, ABC_data_a, dims, 1, .TRUE.)
+            CALL Read_state_2d (ABCfile, ABC_data_a, dims, -1, .TRUE.)
             PRINT *, '-- done'
 
             ! Extract the total r field and store for computation
@@ -504,7 +504,7 @@ CASE (4)
       ! Read-in the ensemble mean for this ensemble
       WRITE (meanfile, '(A,A,I0.3,A)') TRIM(datadirABCperts), '/MeanABC', ens, '.nc'
       PRINT *, 'Reading mean state ', TRIM (meanfile)
-      CALL Read_state_2d (meanfile, ABC_mean, dims, 1, .TRUE.)
+      CALL Read_state_2d (meanfile, ABC_mean, dims, -1, .TRUE.)
       PRINT *, '-- done'
 
       ! Read-in the ABC perts and convert to parameter perts
@@ -516,7 +516,7 @@ CASE (4)
           ! Read-in a pert found from stage 2
           WRITE (ABCfile, '(A,A,I0.3,A,I0.3,A)') TRIM(datadirABCperts), '/PertABC_Ens', ens, '_Item', item, '.nc'
           PRINT *, 'Reading file ', TRIM(ABCfile)
-          CALL Read_state_2d (ABCfile, ABC_data_a, dims, 1, .TRUE.)
+          CALL Read_state_2d (ABCfile, ABC_data_a, dims, -1, .TRUE.)
           PRINT *, '-- done'
           IF ((ens == 1) .AND. (item == 1)) THEN
             CALL Set_ht_dep_cons (dims)
